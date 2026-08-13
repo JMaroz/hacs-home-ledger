@@ -1,0 +1,143 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Home Ledger",
+        "description": "Set up Home Ledger to track household utility bills.",
+        "data": {
+          "name": "Name"
+        },
+        "data_description": {
+          "name": "The name to use for this Home Ledger account."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Home Ledger is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "total_bills": {
+        "name": "Total bills"
+      },
+      "total_cost": {
+        "name": "Total cost"
+      },
+      "total_consumption": {
+        "name": "Total consumption"
+      },
+      "monthly_cost": {
+        "name": "Monthly cost"
+      },
+      "monthly_consumption": {
+        "name": "Monthly consumption"
+      },
+      "last_bill_cost": {
+        "name": "Last bill cost"
+      },
+      "last_bill_consumption": {
+        "name": "Last bill consumption"
+      }
+    }
+  },
+  "services": {
+    "add_bill": {
+      "name": "Add bill",
+      "description": "Add a utility bill to Home Ledger.",
+      "fields": {
+        "utility_type": {
+          "name": "Utility type",
+          "description": "The utility type for the bill."
+        },
+        "bill_date": {
+          "name": "Bill date",
+          "description": "The date shown on the bill."
+        },
+        "months": {
+          "name": "Months",
+          "description": "The number of months covered by the bill."
+        },
+        "cost": {
+          "name": "Cost",
+          "description": "The total cost shown on the bill."
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "The total consumption shown on the bill."
+        }
+      }
+    },
+    "update_bill": {
+      "name": "Update bill",
+      "description": "Update an existing utility bill in Home Ledger.",
+      "fields": {
+        "bill_id": {
+          "name": "Bill ID",
+          "description": "The identifier of the bill to update."
+        },
+        "utility_type": {
+          "name": "Utility type",
+          "description": "The utility type for the bill."
+        },
+        "bill_date": {
+          "name": "Bill date",
+          "description": "The date shown on the bill."
+        },
+        "months": {
+          "name": "Months",
+          "description": "The number of months covered by the bill."
+        },
+        "cost": {
+          "name": "Cost",
+          "description": "The total cost shown on the bill."
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "The total consumption shown on the bill."
+        }
+      }
+    },
+    "delete_bill": {
+      "name": "Delete bill",
+      "description": "Delete a utility bill from Home Ledger.",
+      "fields": {
+        "bill_id": {
+          "name": "Bill ID",
+          "description": "The identifier of the bill to delete."
+        }
+      }
+    },
+    "list_bills": {
+      "name": "List bills",
+      "description": "List utility bills stored in Home Ledger.",
+      "fields": {
+        "utility_type": {
+          "name": "Utility type",
+          "description": "Only include bills for this utility type."
+        },
+        "months": {
+          "name": "Months",
+          "description": "Only include bills from this number of recent months."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "bill_not_found": {
+      "message": "The requested bill was not found."
+    },
+    "invalid_utility_type": {
+      "message": "The utility type is not valid. Choose one of the supported utility types."
+    },
+    "invalid_months": {
+      "message": "The months value is not valid. Enter a whole number greater than zero."
+    },
+    "invalid_cost": {
+      "message": "The cost value is not valid. Enter a number greater than or equal to zero."
+    },
+    "invalid_consumption": {
+      "message": "The consumption value is not valid. Enter a number greater than or equal to zero."
+    }
+  }
+}
