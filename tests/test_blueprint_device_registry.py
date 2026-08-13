@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.ha_integration_domain.const import DOMAIN
+from custom_components.home_ledger.const import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
@@ -19,7 +19,7 @@ async def test_entry_owns_its_own_device(init_integration: MockConfigEntry, hass
 
     assert len(devices) == 1
     assert devices[0].config_entry_id == init_integration.entry_id
-    assert devices[0].model == "Blueprint Air Purifier"
+    assert devices[0].model == "Home Ledger"
 
 
 async def test_two_entries_get_separate_devices(
