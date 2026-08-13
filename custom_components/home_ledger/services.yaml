@@ -1,0 +1,97 @@
+add_bill:
+  name: Add bill
+  description: Add a bill to the local Home Ledger store.
+  fields:
+    config_entry_id:
+      name: Integration entry
+      description: The configured Home Ledger entry to update.
+      required: true
+      selector:
+        config_entry:
+          integration: home_ledger
+    bill_id:
+      name: Bill ID
+      description: Stable identifier for the bill.
+      required: true
+      example: electricity_2026_08
+      selector:
+        text:
+    name:
+      name: Name
+      description: Human-readable bill name.
+      required: true
+      example: Electricity August 2026
+      selector:
+        text:
+    amount:
+      name: Amount
+      description: Bill amount.
+      required: true
+      example: 123.45
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.01
+    paid:
+      name: Paid
+      description: Whether the bill has already been paid.
+      default: false
+      selector:
+        boolean:
+update_bill:
+  name: Update bill
+  description: Update an existing bill in the local Home Ledger store.
+  fields:
+    config_entry_id:
+      name: Integration entry
+      description: The configured Home Ledger entry to update.
+      required: true
+      selector:
+        config_entry:
+          integration: home_ledger
+    bill_id:
+      name: Bill ID
+      description: Stable identifier for the bill.
+      required: true
+      example: electricity_2026_08
+      selector:
+        text:
+    name:
+      name: Name
+      description: Human-readable bill name.
+      example: Electricity August 2026
+      selector:
+        text:
+    amount:
+      name: Amount
+      description: Bill amount.
+      example: 123.45
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.01
+    paid:
+      name: Paid
+      description: Whether the bill has already been paid.
+      selector:
+        boolean:
+delete_bill:
+  name: Delete bill
+  description: Delete a bill from the local Home Ledger store.
+  fields:
+    config_entry_id:
+      name: Integration entry
+      description: The configured Home Ledger entry to update.
+      required: true
+      selector:
+        config_entry:
+          integration: home_ledger
+    bill_id:
+      name: Bill ID
+      description: Stable identifier for the bill.
+      required: true
+      example: electricity_2026_08
+      selector:
+        text:

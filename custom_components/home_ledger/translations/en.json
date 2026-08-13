@@ -1,0 +1,186 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "This entry is already configured.",
+      "reauth_successful": "Reauthentication was successful.",
+      "reconfigure_successful": "Reconfiguration was successful."
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the server.",
+      "invalid_auth": "The username or password is wrong.",
+      "unknown": "An unknown error occurred."
+    },
+    "step": {
+      "reauth_confirm": {
+        "data": {
+          "password": "Password",
+          "username": "Username"
+        },
+        "data_description": {
+          "password": "The current password for that account.",
+          "username": "The account name you use to sign in to the device."
+        },
+        "description": "The credentials for {username} are no longer valid. Provide updated credentials to restore access.",
+        "title": "Reauthenticate integration"
+      },
+      "reconfigure": {
+        "data": {
+          "password": "Password",
+          "username": "Username"
+        },
+        "data_description": {
+          "password": "The password for that account.",
+          "username": "The account name you use to sign in to the device."
+        },
+        "description": "Update the credentials for this integration."
+      },
+      "user": {
+        "data": {
+          "password": "Password",
+          "username": "Username"
+        },
+        "data_description": {
+          "password": "The password for that account. It is stored encrypted and never written to the log.",
+          "username": "The account name you use to sign in to the device."
+        },
+        "description": "If you need help with the configuration have a look at the [documentation]({documentation_url})."
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "bill_count": {
+        "name": "Bills"
+      },
+      "paid_total": {
+        "name": "Paid total"
+      },
+      "unpaid_count": {
+        "name": "Unpaid bills"
+      },
+      "unpaid_total": {
+        "name": "Unpaid total"
+      }
+    }
+  },
+  "exceptions": {
+    "authentication_failed": {
+      "message": "Authentication failed during the data update."
+    },
+    "bill_already_exists": {
+      "message": "Bill {bill_id} already exists."
+    },
+    "bill_not_found": {
+      "message": "Bill {bill_id} was not found."
+    },
+    "entry_not_found": {
+      "message": "Home Ledger entry {target} was not found."
+    },
+    "entry_not_loaded": {
+      "message": "Home Ledger entry {target} is not loaded."
+    },
+    "fan_speed_set_failed": {
+      "message": "Failed to change the fan speed on the device."
+    },
+    "fan_state_set_failed": {
+      "message": "Failed to turn the fan on or off."
+    },
+    "invalid_fan_speed": {
+      "message": "{speed} is not a fan speed this device supports."
+    },
+    "number_set_failed": {
+      "message": "Failed to set the target humidity on the device."
+    },
+    "reset_filter_failed": {
+      "message": "Failed to reset the filter timer on the device."
+    },
+    "switch_set_failed": {
+      "message": "Failed to change the {name} setting on the device."
+    },
+    "update_failed": {
+      "message": "Failed to fetch data from the device."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "update_interval_hours": "Update interval (hours)"
+        },
+        "data_description": {
+          "update_interval_hours": "How often to fetch the device state, between 0.25 and 24 hours."
+        },
+        "description": "Customize how this integration operates.",
+        "title": "Configure integration options"
+      }
+    }
+  },
+  "services": {
+    "add_bill": {
+      "description": "Add a bill to the local Home Ledger store.",
+      "fields": {
+        "amount": {
+          "description": "Bill amount.",
+          "name": "Amount"
+        },
+        "bill_id": {
+          "description": "Stable identifier for the bill.",
+          "name": "Bill ID"
+        },
+        "config_entry_id": {
+          "description": "The configured Home Ledger entry to update.",
+          "name": "Integration entry"
+        },
+        "name": {
+          "description": "Human-readable bill name.",
+          "name": "Name"
+        },
+        "paid": {
+          "description": "Whether the bill has already been paid.",
+          "name": "Paid"
+        }
+      },
+      "name": "Add bill"
+    },
+    "delete_bill": {
+      "description": "Delete a bill from the local Home Ledger store.",
+      "fields": {
+        "bill_id": {
+          "description": "Stable identifier for the bill.",
+          "name": "Bill ID"
+        },
+        "config_entry_id": {
+          "description": "The configured Home Ledger entry to update.",
+          "name": "Integration entry"
+        }
+      },
+      "name": "Delete bill"
+    },
+    "update_bill": {
+      "description": "Update an existing bill in the local Home Ledger store.",
+      "fields": {
+        "amount": {
+          "description": "Bill amount.",
+          "name": "Amount"
+        },
+        "bill_id": {
+          "description": "Stable identifier for the bill.",
+          "name": "Bill ID"
+        },
+        "config_entry_id": {
+          "description": "The configured Home Ledger entry to update.",
+          "name": "Integration entry"
+        },
+        "name": {
+          "description": "Human-readable bill name.",
+          "name": "Name"
+        },
+        "paid": {
+          "description": "Whether the bill has already been paid.",
+          "name": "Paid"
+        }
+      },
+      "name": "Update bill"
+    }
+  }
+}

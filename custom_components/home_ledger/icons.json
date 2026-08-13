@@ -1,0 +1,29 @@
+{
+  "entity": {
+    "sensor": {
+      "bill_count": {
+        "default": "mdi:receipt-text"
+      },
+      "paid_total": {
+        "default": "mdi:cash-check"
+      },
+      "unpaid_count": {
+        "default": "mdi:receipt-text-clock"
+      },
+      "unpaid_total": {
+        "default": "mdi:cash-clock"
+      }
+    }
+  },
+  "services": {
+    "add_bill": {
+      "service": "mdi:receipt-text-plus"
+    },
+    "delete_bill": {
+      "service": "mdi:receipt-text-remove"
+    },
+    "update_bill": {
+      "service": "mdi:receipt-text-edit"
+    }
+  }
+}

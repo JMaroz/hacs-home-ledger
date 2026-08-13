@@ -1,81 +1,81 @@
-"""Tests for the entities the example integration exposes."""
-
-from unittest.mock import AsyncMock
+"""Tests for Home Ledger entities and actions."""
 
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.ha_integration_domain.api import IntegrationBlueprintApiClientError
-from homeassistant.components.fan import DOMAIN as FAN_DOMAIN, SERVICE_SET_PERCENTAGE
-from homeassistant.const import ATTR_ENTITY_ID, STATE_UNAVAILABLE
+from custom_components.home_ledger.const import DOMAIN
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import entity_registry as er
+from homeassistant.exceptions import ServiceValidationError
 
 
 async def test_entities_read_the_coordinator_payload(
     init_integration: MockConfigEntry,
     hass: HomeAssistant,
 ) -> None:
-    """Every entity takes its state from the payload the client built."""
-    # seed = 1 * 47 + 1 * 13 = 60
-    assert hass.states.get("sensor.demo_filter_life_remaining").state == "40"
-    assert hass.states.get("binary_sensor.demo_filter_replacement_needed").state == "off"
-    assert hass.states.get("select.demo_fan_speed").state == "auto"
-    assert hass.states.get("switch.demo_child_lock").state == "off"
-    assert hass.states.get("number.demo_target_humidity").state == "50.0"
+    """Every entity takes its state from the coordinator aggregate payload."""
+    assert hass.states.get("sensor.demo_bills").state == "0"
+    assert hass.states.get("sensor.demo_unpaid_bills").state == "0"
+    assert hass.states.get("sensor.demo_unpaid_total").state == "0"
+    assert hass.states.get("sensor.demo_paid_total").state == "0"
 
 
-async def test_fan_is_the_main_feature_entity(
+async def test_bill_actions_save_and_publish_updated_data(
     init_integration: MockConfigEntry,
     hass: HomeAssistant,
 ) -> None:
-    """The fan carries the device name alone, not a repeated name."""
-    state = hass.states.get("fan.demo")
+    """Bill actions persist data and publish the updated aggregate immediately."""
+    entry_id = init_integration.entry_id
 
-    assert state is not None
-    assert state.attributes["friendly_name"] == "demo"
+    await hass.services.async_call(
+        DOMAIN,
+        "add_bill",
+        {
+            "config_entry_id": entry_id,
+            "bill_id": "electricity_2026_08",
+            "name": "Electricity August 2026",
+            "amount": 125.5,
+        },
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.demo_bills").state == "1"
+    assert hass.states.get("sensor.demo_unpaid_bills").state == "1"
+    assert hass.states.get("sensor.demo_unpaid_total").state == "125.5"
+
+    await hass.services.async_call(
+        DOMAIN,
+        "update_bill",
+        {"config_entry_id": entry_id, "bill_id": "electricity_2026_08", "paid": True},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.demo_unpaid_total").state == "0"
+    assert hass.states.get("sensor.demo_paid_total").state == "125.5"
+
+    await hass.services.async_call(
+        DOMAIN,
+        "delete_bill",
+        {"config_entry_id": entry_id, "bill_id": "electricity_2026_08"},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.demo_bills").state == "0"
 
 
-async def test_led_display_is_disabled_by_default(
+async def test_update_missing_bill_raises_translated_error(
     init_integration: MockConfigEntry,
     hass: HomeAssistant,
 ) -> None:
-    """The noisy diagnostic switch is not created until the user enables it."""
-    entry = er.async_get(hass).async_get("switch.demo_led_display")
-
-    assert entry is not None
-    assert entry.disabled_by is er.RegistryEntryDisabler.INTEGRATION
-
-
-async def test_write_failure_raises_translated_error(
-    init_integration: MockConfigEntry,
-    hass: HomeAssistant,
-    mock_api: AsyncMock,
-) -> None:
-    """A failing device call surfaces as a translated HomeAssistantError."""
-    mock_api.side_effect = IntegrationBlueprintApiClientError("boom")
-
-    with pytest.raises(HomeAssistantError) as err:
+    """Updating a missing bill raises a translated validation error."""
+    with pytest.raises(ServiceValidationError) as err:
         await hass.services.async_call(
-            FAN_DOMAIN,
-            SERVICE_SET_PERCENTAGE,
-            {ATTR_ENTITY_ID: "fan.demo", "percentage": 100},
+            DOMAIN,
+            "update_bill",
+            {"config_entry_id": init_integration.entry_id, "bill_id": "missing", "paid": True},
             blocking=True,
         )
 
-    assert err.value.translation_key == "fan_speed_set_failed"
-
-
-async def test_entities_go_unavailable_when_the_poll_fails(
-    init_integration: MockConfigEntry,
-    hass: HomeAssistant,
-    mock_api: AsyncMock,
-) -> None:
-    """A failed refresh makes the entities unavailable rather than stale."""
-    mock_api.side_effect = IntegrationBlueprintApiClientError("boom")
-
-    await init_integration.runtime_data.coordinator.async_refresh()
-    await hass.async_block_till_done()
-
-    assert hass.states.get("sensor.demo_filter_life_remaining").state == STATE_UNAVAILABLE
+    assert err.value.translation_key == "bill_not_found"

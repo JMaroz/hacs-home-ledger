@@ -1,10 +1,8 @@
 """Tests for Home Assistant 2026.8 config-entry-scoped device ownership."""
 
-from unittest.mock import AsyncMock
-
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.ha_integration_domain.const import DOMAIN
+from custom_components.home_ledger.const import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
@@ -19,12 +17,11 @@ async def test_entry_owns_its_own_device(init_integration: MockConfigEntry, hass
 
     assert len(devices) == 1
     assert devices[0].config_entry_id == init_integration.entry_id
-    assert devices[0].model == "Blueprint Air Purifier"
+    assert devices[0].model == "Local ledger"
 
 
 async def test_two_entries_get_separate_devices(
     hass: HomeAssistant,
-    mock_api: AsyncMock,
     init_integration: MockConfigEntry,
 ) -> None:
     """Two entries never share a device, and entry-scoped lookups keep them apart."""
