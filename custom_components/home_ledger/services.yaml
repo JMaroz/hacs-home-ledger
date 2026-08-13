@@ -1,0 +1,128 @@
+# yaml-language-server: $schema=../../schemas/yaml/services_schema.yaml
+# The names and descriptions here are only the fallback shown when a translation is
+# missing; users see services.<action>.* from translations/en.json.
+
+add_bill:
+  name: Add bill
+  description: Store a bill in the ledger.
+  fields:
+    config_entry_id: &config_entry_id
+      name: Integration entry
+      description: The Home Ledger configuration entry to use.
+      required: true
+      example: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
+      selector:
+        config_entry:
+          integration: home_ledger
+    bill_id:
+      name: Bill ID
+      description: Optional stable bill identifier. One is generated when omitted.
+      example: electricity_january
+      selector:
+        text:
+    name:
+      name: Name
+      description: Bill name.
+      required: true
+      example: Electricity
+      selector:
+        text:
+    amount:
+      name: Amount
+      description: Bill amount in the Home Assistant system currency.
+      required: true
+      example: 84.25
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.01
+    due_date:
+      name: Due date
+      description: Date when the bill is due.
+      required: true
+      example: "2026-09-01"
+      selector:
+        date:
+    paid:
+      name: Paid
+      description: Whether the bill is already paid.
+      default: false
+      selector:
+        boolean:
+    recurrence:
+      name: Recurrence
+      description: Optional recurrence label, such as monthly or yearly.
+      example: monthly
+      selector:
+        text:
+
+update_bill:
+  name: Update bill
+  description: Update an existing bill in the ledger.
+  fields:
+    config_entry_id: *config_entry_id
+    bill_id:
+      name: Bill ID
+      description: Stable identifier of the bill to update.
+      required: true
+      example: electricity_january
+      selector:
+        text:
+    name:
+      name: Name
+      description: New bill name.
+      example: Electricity
+      selector:
+        text:
+    amount:
+      name: Amount
+      description: New bill amount in the Home Assistant system currency.
+      example: 84.25
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.01
+    due_date:
+      name: Due date
+      description: New date when the bill is due.
+      example: "2026-09-01"
+      selector:
+        date:
+    paid:
+      name: Paid
+      description: Whether the bill is already paid.
+      selector:
+        boolean:
+    recurrence:
+      name: Recurrence
+      description: Optional recurrence label, such as monthly or yearly.
+      example: monthly
+      selector:
+        text:
+
+delete_bill:
+  name: Delete bill
+  description: Remove a bill from the ledger.
+  fields:
+    config_entry_id: *config_entry_id
+    bill_id:
+      name: Bill ID
+      description: Stable identifier of the bill to delete.
+      required: true
+      example: electricity_january
+      selector:
+        text:
+
+list_bills:
+  name: List bills
+  description: Return all bills stored in the ledger.
+  fields:
+    config_entry_id: *config_entry_id
+
+refresh_data:
+  name: Refresh data
+  description: Fetch the current device state immediately instead of waiting for the next poll.
+  fields:
+    config_entry_id: *config_entry_id
