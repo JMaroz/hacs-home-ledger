@@ -1,0 +1,102 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Home Ledger",
+        "description": "Create the Home Ledger integration entry."
+      }
+    },
+    "error": {},
+    "abort": {
+      "already_configured": "Home Ledger is already configured."
+    }
+  },
+  "exceptions": {
+    "authentication_failed": {
+      "message": "Authentication failed during the data update."
+    },
+    "update_failed": {
+      "message": "Failed to fetch data from the device."
+    },
+    "switch_set_failed": {
+      "message": "Failed to change the {name} setting on the device."
+    },
+    "number_set_failed": {
+      "message": "Failed to set the target humidity on the device."
+    },
+    "reset_filter_failed": {
+      "message": "Failed to reset the filter timer on the device."
+    },
+    "fan_speed_set_failed": {
+      "message": "Failed to change the fan speed on the device."
+    },
+    "fan_state_set_failed": {
+      "message": "Failed to turn the fan on or off."
+    },
+    "invalid_fan_speed": {
+      "message": "{speed} is not a fan speed this device supports."
+    },
+    "entry_not_found": {
+      "message": "No configuration entry of this integration matches {target}."
+    },
+    "entry_not_loaded": {
+      "message": "The configuration entry {target} is not loaded, so it cannot be refreshed."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "filter_life": {
+        "name": "Filter life remaining"
+      },
+      "runtime": {
+        "name": "Total runtime"
+      }
+    },
+    "binary_sensor": {
+      "filter_replacement": {
+        "name": "Filter replacement needed"
+      }
+    },
+    "switch": {
+      "child_lock": {
+        "name": "Child lock"
+      },
+      "led_display": {
+        "name": "LED display"
+      }
+    },
+    "select": {
+      "fan_speed": {
+        "name": "Fan speed",
+        "state": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "auto": "Auto"
+        }
+      }
+    },
+    "number": {
+      "target_humidity": {
+        "name": "Target humidity"
+      }
+    },
+    "button": {
+      "reset_filter": {
+        "name": "Reset filter timer"
+      }
+    }
+  },
+  "services": {
+    "refresh_data": {
+      "name": "Refresh data",
+      "description": "Fetches the current device state immediately instead of waiting for the next poll.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Integration entry",
+          "description": "The configuration entry to refresh."
+        }
+      }
+    }
+  }
+}

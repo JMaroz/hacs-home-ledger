@@ -1,4 +1,4 @@
-"""Shared fixtures for the ha_integration_domain tests."""
+"""Shared fixtures for the home_ledger tests."""
 
 from collections.abc import Generator
 from typing import Any
@@ -7,8 +7,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.ha_integration_domain.const import DOMAIN
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from custom_components.home_ledger.const import DOMAIN
 from homeassistant.core import HomeAssistant
 
 # The response the demo endpoint returns; the client turns it into the device payload.
@@ -24,7 +23,7 @@ def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
 def mock_api() -> Generator[AsyncMock]:
     """Replace the client's HTTP layer, keeping its payload logic under test."""
     with patch(
-        "custom_components.ha_integration_domain.api.client.IntegrationBlueprintApiClient._api_wrapper",
+        "custom_components.home_ledger.api.client.HomeLedgerApiClient._api_wrapper",
         new_callable=AsyncMock,
         return_value=API_RESPONSE,
     ) as api_wrapper:
@@ -36,9 +35,9 @@ def config_entry() -> MockConfigEntry:
     """Return a config entry for this integration."""
     return MockConfigEntry(
         domain=DOMAIN,
-        title="demo",
-        unique_id="demo",
-        data={CONF_USERNAME: "demo", CONF_PASSWORD: "secret"},
+        title="Home Ledger",
+        unique_id="home_ledger",
+        data={},
     )
 
 

@@ -4,9 +4,8 @@ from unittest.mock import AsyncMock
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.ha_integration_domain.const import DOMAIN
+from custom_components.home_ledger.const import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
@@ -32,7 +31,7 @@ async def test_two_entries_get_separate_devices(
         domain=DOMAIN,
         title="second",
         unique_id="second",
-        data={CONF_USERNAME: "second", CONF_PASSWORD: "secret"},
+        data={},
     )
     second_entry.add_to_hass(hass)
     await hass.config_entries.async_setup(second_entry.entry_id)
