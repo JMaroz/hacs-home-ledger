@@ -1,7 +1,7 @@
 # Template Sync Ignore File
 # ============================================================
 # Files and folders listed here will NOT be synced from the
-# upstream template (jpawlowski/hacs.integration_blueprint).
+# upstream template (andmaroz89/hacs-home-ledger).
 #
 # Syntax follows .gitignore glob patterns.
 # See: https://github.com/AndreasAugustin/actions-template-sync
@@ -14,12 +14,12 @@ custom_components/
 # ── Tests ────────────────────────────────────────────────────
 # Test files reference your integration domain (set by initialize.sh).
 # Future test files added by the blueprint would arrive with
-# ha_integration_domain hard-coded, breaking your imports.
+# home_ledger hard-coded, breaking your imports.
 tests/
 
 # ── Project configuration ─────────────────────────────────────
 # These files are customized for your integration during initialization
-# (initialize.sh replaces ha_integration_domain and related strings).
+# (initialize.sh replaces home_ledger and related strings).
 # Syncing them back would revert those substitutions.
 pyproject.toml
 .yamllint.yml
