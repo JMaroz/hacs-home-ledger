@@ -1,0 +1,14 @@
+{
+  "domain": "home_ledger",
+  "name": "Home Ledger",
+  "codeowners": [
+    "@jpawlowski"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/jpawlowski/hacs-home-ledger",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/jpawlowski/hacs-home-ledger/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
