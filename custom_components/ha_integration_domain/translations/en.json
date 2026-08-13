@@ -95,11 +95,20 @@
   },
   "entity": {
     "sensor": {
-      "filter_life": {
-        "name": "Filter life remaining"
+      "total_cost": {
+        "name": "Total cost"
       },
-      "runtime": {
-        "name": "Total runtime"
+      "total_consumption": {
+        "name": "Total consumption"
+      },
+      "total_months": {
+        "name": "Total months"
+      },
+      "monthly_average": {
+        "name": "Monthly average"
+      },
+      "cost_per_unit": {
+        "name": "Cost per unit"
       }
     },
     "binary_sensor": {
@@ -145,6 +154,96 @@
         "config_entry_id": {
           "name": "Integration entry",
           "description": "The configuration entry to refresh."
+        }
+      }
+    },
+    "add_bill": {
+      "name": "Add Bill",
+      "description": "Add a utility bill to the ledger.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry Id",
+          "description": "config entry id"
+        },
+        "utility": {
+          "name": "Utility",
+          "description": "utility"
+        },
+        "cost": {
+          "name": "Cost",
+          "description": "cost"
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "consumption"
+        },
+        "months": {
+          "name": "Months",
+          "description": "months"
+        },
+        "bill_id": {
+          "name": "Bill Id",
+          "description": "bill id"
+        }
+      }
+    },
+    "update_bill": {
+      "name": "Update Bill",
+      "description": "Update an existing utility bill in the ledger.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry Id",
+          "description": "config entry id"
+        },
+        "utility": {
+          "name": "Utility",
+          "description": "utility"
+        },
+        "cost": {
+          "name": "Cost",
+          "description": "cost"
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "consumption"
+        },
+        "months": {
+          "name": "Months",
+          "description": "months"
+        },
+        "bill_id": {
+          "name": "Bill Id",
+          "description": "bill id"
+        }
+      }
+    },
+    "delete_bill": {
+      "name": "Delete Bill",
+      "description": "Delete an existing utility bill from the ledger.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config Entry Id",
+          "description": "config entry id"
+        },
+        "utility": {
+          "name": "Utility",
+          "description": "utility"
+        },
+        "cost": {
+          "name": "Cost",
+          "description": "cost"
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "consumption"
+        },
+        "months": {
+          "name": "Months",
+          "description": "months"
+        },
+        "bill_id": {
+          "name": "Bill Id",
+          "description": "bill id"
         }
       }
     }

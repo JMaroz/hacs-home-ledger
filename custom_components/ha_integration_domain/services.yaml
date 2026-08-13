@@ -1,16 +1,125 @@
-# yaml-language-server: $schema=../../schemas/yaml/services_schema.yaml
-# The names and descriptions here are only the fallback shown when a translation is
-# missing; users see services.<action>.* from translations/en.json.
-
-refresh_data:
-  name: Refresh data
-  description: Fetch the current device state immediately instead of waiting for the next poll.
+add_bill:
+  name: Add bill
+  description: Add a utility bill to the ledger.
   fields:
     config_entry_id:
       name: Integration entry
-      description: The configuration entry to refresh.
+      description: The configured entry that owns the ledger.
       required: true
-      example: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
       selector:
         config_entry:
           integration: ha_integration_domain
+    utility:
+      name: Utility
+      description: The utility type this bill belongs to.
+      required: true
+      example: electricity
+      selector:
+        select:
+          options:
+            - electricity
+            - gas
+            - water
+    cost:
+      name: Cost
+      description: The total bill cost.
+      required: true
+      example: 42.5
+      selector:
+        number:
+          min: 0
+          step: 0.01
+          mode: box
+    consumption:
+      name: Consumption
+      description: The consumed utility amount.
+      required: true
+      example: 120
+      selector:
+        number:
+          min: 0
+          step: 0.01
+          mode: box
+    months:
+      name: Months
+      description: The number of months covered by the bill.
+      required: true
+      example: 2
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+update_bill:
+  name: Update bill
+  description: Update an existing utility bill in the ledger.
+  fields:
+    config_entry_id:
+      name: Integration entry
+      description: The configured entry that owns the ledger.
+      required: true
+      selector:
+        config_entry:
+          integration: ha_integration_domain
+    bill_id:
+      name: Bill ID
+      description: The identifier returned when the bill was added.
+      required: true
+      example: 3f2c
+      selector:
+        text:
+    utility:
+      name: Utility
+      description: The updated utility type.
+      example: gas
+      selector:
+        select:
+          options:
+            - electricity
+            - gas
+            - water
+    cost:
+      name: Cost
+      description: The updated total bill cost.
+      example: 55
+      selector:
+        number:
+          min: 0
+          step: 0.01
+          mode: box
+    consumption:
+      name: Consumption
+      description: The updated consumed utility amount.
+      example: 150
+      selector:
+        number:
+          min: 0
+          step: 0.01
+          mode: box
+    months:
+      name: Months
+      description: The updated number of months covered by the bill.
+      example: 3
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+delete_bill:
+  name: Delete bill
+  description: Delete an existing utility bill from the ledger.
+  fields:
+    config_entry_id:
+      name: Integration entry
+      description: The configured entry that owns the ledger.
+      required: true
+      selector:
+        config_entry:
+          integration: ha_integration_domain
+    bill_id:
+      name: Bill ID
+      description: The identifier returned when the bill was added.
+      required: true
+      example: 3f2c
+      selector:
+        text:

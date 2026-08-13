@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     from .api import IntegrationBlueprintApiClient
     from .coordinator import IntegrationBlueprintDataUpdateCoordinator
+    from .ledger import HomeLedger
 
 
 type IntegrationBlueprintConfigEntry = ConfigEntry[IntegrationBlueprintData]
@@ -25,3 +26,4 @@ class IntegrationBlueprintData:
     client: IntegrationBlueprintApiClient
     coordinator: IntegrationBlueprintDataUpdateCoordinator
     integration: Integration
+    ledger: HomeLedger
