@@ -23,9 +23,17 @@ class TestBill:
         assert bill.consumption == 412.0
 
     def test_bill_unit_of_measurement(self) -> None:
-        assert Bill(id="1", utility_type="electricity", months=1, total_cost=10, consumption=100).unit_of_measurement == "kWh"
-        assert Bill(id="1", utility_type="gas", months=1, total_cost=10, consumption=100).unit_of_measurement == "m\u00b3"
-        assert Bill(id="1", utility_type="water", months=1, total_cost=10, consumption=100).unit_of_measurement == "m\u00b3"
+        assert (
+            Bill(id="1", utility_type="electricity", months=1, total_cost=10, consumption=100).unit_of_measurement
+            == "kWh"
+        )
+        assert (
+            Bill(id="1", utility_type="gas", months=1, total_cost=10, consumption=100).unit_of_measurement == "m\u00b3"
+        )
+        assert (
+            Bill(id="1", utility_type="water", months=1, total_cost=10, consumption=100).unit_of_measurement
+            == "m\u00b3"
+        )
 
     def test_bill_is_frozen(self) -> None:
         bill = Bill(id="1", utility_type="electricity", months=1, total_cost=10, consumption=100)

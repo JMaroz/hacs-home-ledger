@@ -20,119 +20,143 @@ Each decision is documented with:
 
 ## Decision Log
 
-### Use DataUpdateCoordinator for All Data Fetching
+### Local-Only Storage via HA Store
 
-**Date:** 2025-11-29 (Template initialization)
+**Date:** 2026-08-27 (Consolidation)
 
-**Context:** The integration needs to fetch data from an external API and share it with multiple entities. Home Assistant provides several patterns for this.
+**Context:** Home Ledger tracks household utility bills. No external API or device is involved — all data is entered manually by the user.
 
-**Decision:** Use `DataUpdateCoordinator` from `homeassistant.helpers.update_coordinator` as the central data management component.
+**Decision:** Use `homeassistant.helpers.storage.Store` for persistent bill storage. No API client, no cloud dependency.
 
 **Rationale:**
 
-- Provides built-in support for update intervals and error handling
-- Automatic retry with exponential backoff
-- Shared data access prevents duplicate API calls
-- Standard pattern recommended by Home Assistant
-- Entities automatically become unavailable when coordinator fails
+- All data originates from user input via service actions
+- No device to poll, no credentials to manage
+- `Store` handles serialization, migration, and HA lifecycle automatically
+- Zero network dependency = zero availability issues
 
 **Consequences:**
 
-- All entities must inherit from `CoordinatorEntity`
-- Single update interval applies to all entities
-- Data is fetched even if no entities are enabled
-- Coordinator manages entity lifecycle and availability
+- Bills survive HA restarts without additional work
+- Single-point-of-truth on one HA instance (no sync across instances)
+- Storage schema must be versioned for future migration
 
 ---
 
-### Separate API Client from Coordinator
+### Bill Frozen Dataclass with UtilityType Enum
 
-**Date:** 2025-11-29 (Template initialization)
+**Date:** 2026-08-27 (Consolidation)
 
-**Context:** The coordinator needs to fetch data, but business logic should be separated from data transport.
+**Context:** Bills need a structured representation that validates on creation and serializes cleanly to storage.
 
-**Decision:** Implement API communication in separate `api/client.py` module, coordinator only orchestrates updates.
+**Decision:** `Bill` is a frozen dataclass with `UtilityType` (StrEnum: electricity, gas, water). Validation runs in `__post_init__`. Serialization via `as_storage_dict()` / `from_storage_dict()`.
 
 **Rationale:**
 
-- Separation of concerns: transport vs. orchestration
-- Easier to test API client in isolation
-- Simpler to swap API implementation if needed
-- Clearer error handling boundaries
+- Frozen = immutable, no accidental mutation after creation
+- `__post_init__` catches bad data at construction time, not at save time
+- StrEnum serializes cleanly to JSON without custom encoders
+- `as_storage_dict()` keeps storage format decoupled from internal fields
 
 **Consequences:**
 
-- Additional abstraction layer
-- Coordinator depends on API client
-- API client raises custom exceptions for error translation
+- "Update" creates a new `Bill` (or patches the storage dict directly)
+- Adding a field requires updating both the dataclass and the storage migration
 
 ---
 
-### Platform-Specific Directories
+### Coordinator with No Polling Interval
 
-**Date:** 2025-11-29 (Template initialization)
+**Date:** 2026-08-27 (Consolidation)
 
-**Context:** Integration supports multiple platforms (sensor, binary_sensor, switch, etc.).
+**Context:** Data changes only when the user explicitly adds, updates, or deletes a bill. There is nothing to poll.
 
-**Decision:** Each platform gets its own directory with individual entity files.
+**Decision:** `HomeLedgerDataUpdateCoordinator` extends `DataUpdateCoordinator` with `update_interval=None`. Aggregates are recalculated on demand via `async_refresh_bills()`, called after each CRUD operation.
 
 **Rationale:**
 
-- Clear organization as integration grows
-- Easier to find specific entity implementations
-- Supports multiple entities per platform cleanly
-- Follows Home Assistant Core pattern
+- Polling an unchanged local store wastes cycles
+- HA's coordinator is still useful for its listener/notification pattern
+- `async_set_updated_data()` pushes new aggregates to all entities immediately
 
 **Consequences:**
 
-- More files/directories than single-file approach
-- Platform `__init__.py` must import and register entities
-- Slightly more initial setup overhead
+- No automatic periodic refresh (not needed)
+- Entities update instantly after any service action
+- `async_refresh_bills()` must be called explicitly after every bill mutation
 
 ---
 
-### EntityDescription for Static Metadata
+### Service-Action CRUD Instead of Options Flow
 
-**Date:** 2025-11-29 (Template initialization)
+**Date:** 2026-08-27 (Consolidation)
 
-**Context:** Entities have static metadata (name, icon, device class) that doesn't change.
+**Context:** Users manage bills by adding, updating, and deleting records — not by toggling configuration options.
 
-**Decision:** Use `EntityDescription` dataclasses to define static entity metadata.
+**Decision:** Expose four service actions (`add_bill`, `update_bill`, `delete_bill`, `list_bills`) instead of an options flow. Service actions are registered in `async_setup()`.
 
 **Rationale:**
 
-- Declarative and easy to read
-- Type-safe with dataclasses
-- Recommended Home Assistant pattern
-- Separates static configuration from dynamic behavior
+- Bill management is action-oriented, not configuration-oriented
+- Service actions can be called from automations, scripts, and the developer tools
+- `SupportsResponse` returns the affected bill, making automations easier
+- Registration in `async_setup()` follows the `action-setup` quality scale rule
 
 **Consequences:**
 
-- Each entity type needs an EntityDescription
-- Dynamic entities need custom handling
-- Static and dynamic properties clearly separated
+- No in-UI bill management (by design — bill entry is external)
+- Service schemas enforce validation centrally
+- `config_entry_id` field is required in every call
+
+---
+
+### SensorDescription + Value Function Pattern
+
+**Date:** 2026-08-27 (Consolidation)
+
+**Context:** 16 sensor entities are derived from aggregated bill data. Each reads a single field from `HomeLedgerAggregates`.
+
+**Decision:** Each sensor is defined as a `HomeLedgerSensorEntityDescription` with a `value_fn` lambda that extracts one field from the aggregates dataclass.
+
+**Rationale:**
+
+- Declarative: one tuple per category (cost, consumption, average, cost-per-unit)
+- No per-sensor API calls — all data comes from coordinator
+- `translation_key` drives entity names (no hardcoded strings)
+- Adding a new sensor = adding one description to the tuple
+
+**Consequences:**
+
+- `value_fn` signature must match `HomeLedgerAggregates` fields
+- Sensor descriptions live in `sensor/utilities.py`, entity class in `sensor/entity.py`
 
 ---
 
 ## Future Considerations
 
-### State Restoration
+### Multi-Config-Entry Support
 
 **Status:** Not yet implemented
 
-Consider implementing state restoration for switches and configurable settings to maintain state across Home Assistant restarts when the external device is unavailable.
+Current architecture assumes a single config entry per HA instance. If users want separate ledgers (e.g., rental properties), the storage key and coordinator will need scoping by entry ID.
 
-### Multi-Device Support
+### Diagnostics
 
 **Status:** Not yet implemented
 
-Current architecture assumes single device per config entry. If multi-device support is needed, coordinator data structure will need redesign to map device ID → data.
+Add `diagnostics.py` with `async_redact_data()` to dump bill data for troubleshooting. No credentials to redact, but bills may contain user-preferred IDs.
 
-### Polling vs. Push
+### Config Entry Migration
 
-**Status:** Uses polling
+**Status:** Not yet implemented
 
-Currently implements polling-based updates. If the API supports webhooks or WebSocket, consider implementing push-based updates for real-time responsiveness.
+If `entry.data` shape changes (e.g., adding settings), `async_migrate_entry()` and `VERSION`/`MINOR_VERSION` bump will be needed.
+
+### Repair Issues for Invalid Bills
+
+**Status:** Not yet implemented
+
+Detect and surface repair issues for orphaned bills, impossible consumption values, or future-dated bill periods.
 
 ---
 

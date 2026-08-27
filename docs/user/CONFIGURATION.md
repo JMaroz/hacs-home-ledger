@@ -1,244 +1,139 @@
 # Configuration Reference
 
-This document describes all configuration options and settings available in the Home Ledger custom integration.
+Home Ledger has no configuration options. All interaction happens through four service actions.
 
-## Integration Configuration
+## Service Actions
 
-### Initial Setup Options
+### `home_ledger.add_bill`
 
-These options are configured during initial setup via the Home Assistant UI.
+Create a new bill.
 
-#### Connection Settings
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `config_entry_id` | string | yes | The config entry ID (from Developer Tools → States) |
+| `utility_type` | string | yes | `electricity`, `gas`, or `water` |
+| `months` | integer | yes | Number of months the bill covers (≥ 1) |
+| `total_cost` | float | yes | Total cost in EUR (≥ 0) |
+| `consumption` | float | yes | Total consumption in the unit for that utility (≥ 0) |
+| `bill_id` | string | no | Custom ID. Auto-generated if omitted |
 
-| Option      | Type    | Required | Default | Description                                  |
-| ----------- | ------- | -------- | ------- | -------------------------------------------- |
-| **Host**    | string  | Yes      | -       | Hostname or IP address of the device/service |
-| **Port**    | integer | No       | 8080    | Connection port                              |
-| **API Key** | string  | Yes\*    | -       | Authentication key or token                  |
-| **Use SSL** | boolean | No       | false   | Enable HTTPS connection                      |
+**Unit of measurement by utility type:**
 
-\*Required if the device/service requires authentication.
+| Utility | Unit |
+|---|---|
+| electricity | kWh |
+| gas | m³ |
+| water | m³ |
 
-#### Update Settings
-
-| Option              | Type              | Required | Default  | Description                                         |
-| ------------------- | ----------------- | -------- | -------- | --------------------------------------------------- |
-| **Update Interval** | integer (seconds) | No       | 300      | How often to poll for updates (minimum: 30 seconds) |
-| **Name**            | string            | No       | "Device" | Friendly name for the integration instance          |
-
-### Options Flow (Reconfiguration)
-
-After initial setup, you can modify settings:
-
-1. Go to **Settings** → **Devices & Services**
-2. Find "Home Ledger"
-3. Click **Configure**
-4. Modify settings
-5. Click **Submit**
-
-**Available options:**
-
-- Update interval
-- Name/identifier
-- Connection timeout
-- Additional features (device-specific)
-
-## Entity Configuration
-
-### Entity Customization
-
-Customize entities via the UI or `configuration.yaml`:
-
-#### Via Home Assistant UI
-
-1. Go to **Settings** → **Devices & Services** → **Entities**
-2. Find and click the entity
-3. Click the settings icon
-4. Modify:
-   - Entity ID
-   - Name
-   - Icon
-   - Device class (for applicable entities)
-   - Area assignment
-
-#### Via configuration.yaml
+**Response:** returns the stored bill with its `id`.
 
 ```yaml
-homeassistant:
-  customize:
-    sensor.device_name_sensor:
-      friendly_name: "Custom Sensor Name"
-      icon: mdi:custom-icon
-      unit_of_measurement: "units"
-```
-
-### Disabling Entities
-
-If you don't need certain entities:
-
-1. Go to **Settings** → **Devices & Services** → **Entities**
-2. Find the entity
-3. Click it, then click **Settings** icon
-4. Toggle **Enable entity** off
-
-Disabled entities won't update or consume resources.
-
-## Services
-
-The integration provides the following services:
-
-### `home_ledger.refresh_data`
-
-Fetch the current device state immediately instead of waiting for the next poll.
-
-**Service data:**
-
-| Parameter         | Type   | Required | Description                        |
-| ----------------- | ------ | -------- | ---------------------------------- |
-| `config_entry_id` | string | Yes      | The configuration entry to refresh |
-
-The action returns `refreshed_at`, `success` and `value_count`, so an automation can react to
-whether the refresh actually produced data.
-
-**Example:**
-
-```yaml
-action: home_ledger.refresh_data
+service: home_ledger.add_bill
 data:
-  config_entry_id: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
+  config_entry_id: YOUR_ENTRY_ID
+  utility_type: electricity
+  months: 2
+  total_cost: 143.52
+  consumption: 412.0
 ```
 
-### Using Services in Automations
+### `home_ledger.update_bill`
+
+Update an existing bill. Only the fields you provide are changed.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `config_entry_id` | string | yes | The config entry ID |
+| `bill_id` | string | yes | The bill to update |
+| `utility_type` | string | no | New utility type |
+| `months` | integer | no | New month count |
+| `total_cost` | float | no | New total cost |
+| `consumption` | float | no | New consumption |
+
+**Response:** returns the updated bill.
 
 ```yaml
-automation:
-  - alias: "Refresh at sunset"
-    trigger:
-      - trigger: sun
-        event: sunset
-    action:
-      - action: home_ledger.refresh_data
-        data:
-          config_entry_id: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
+service: home_ledger.update_bill
+data:
+  config_entry_id: YOUR_ENTRY_ID
+  bill_id: electricity_jan_feb_2026
+  total_cost: 155.00
 ```
 
-## Advanced Configuration
+### `home_ledger.delete_bill`
 
-### Multiple Instances
+Remove a bill.
 
-You can add multiple instances of this integration for different devices:
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `config_entry_id` | string | yes | The config entry ID |
+| `bill_id` | string | yes | The bill to delete |
 
-1. Go to **Settings** → **Devices & Services**
-2. Click **+ Add Integration**
-3. Search for "Home Ledger"
-4. Configure with different connection details
-
-Each instance creates separate entities with unique entity IDs.
-
-### Network Configuration
-
-If the device is on a different network or behind a firewall:
-
-- Ensure ports are open (default: 8080)
-- Configure port forwarding if needed
-- Consider VPN for remote access
-- Some devices may require static IP addresses
-
-### Polling Behavior
-
-The integration uses polling to fetch updates:
-
-- **Minimum interval:** 30 seconds (prevents overloading the device)
-- **Recommended interval:** 5 minutes (default)
-- **Longer intervals:** Save resources but reduce responsiveness
-
-Adjust based on your needs:
-
-- Real-time monitoring: 30-60 seconds
-- Regular updates: 5 minutes
-- Slow-changing values: 15-30 minutes
-
-## Diagnostic Data
-
-The integration provides diagnostic data for troubleshooting:
-
-1. Go to **Settings** → **Devices & Services**
-2. Find "Home Ledger"
-3. Click on the device
-4. Click **Download Diagnostics**
-
-Diagnostic data includes:
-
-- Connection status
-- Last update timestamp
-- API response data
-- Entity states
-- Error history
-
-**Privacy note:** Diagnostic data may contain sensitive information. Review before sharing.
-
-## Blueprints
-
-The integration works with Home Assistant Blueprints for reusable automations:
-
-### Example Blueprint
+**Response:** returns `{"bill_id": "..."}`.
 
 ```yaml
-blueprint:
-  name: Home Ledger Alert
-  description: Send notification when sensor exceeds threshold
-  domain: automation
-  input:
-    sensor_entity:
-      name: Sensor
-      selector:
-        entity:
-          domain: sensor
-          integration: home_ledger
-    threshold:
-      name: Threshold
-      selector:
-        number:
-          min: 0
-          max: 100
-
-trigger:
-  - trigger: numeric_state
-    entity_id: !input sensor_entity
-    above: !input threshold
-
-action:
-  - action: notify.notify
-    data:
-      message: "Sensor exceeded threshold!"
+service: home_ledger.delete_bill
+data:
+  config_entry_id: YOUR_ENTRY_ID
+  bill_id: electricity_jan_feb_2026
 ```
 
-## Configuration Examples
+### `home_ledger.list_bills`
 
-See [EXAMPLES.md](./EXAMPLES.md) for complete automation and dashboard examples.
+Return all stored bills.
 
-## Troubleshooting Configuration
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `config_entry_id` | string | yes | The config entry ID |
 
-### Config Entry Fails to Load
+**Response:** returns `{"bills": [...]}`.
 
-If the integration fails to load after configuration:
+```yaml
+service: home_ledger.list_bills
+data:
+  config_entry_id: YOUR_ENTRY_ID
+```
 
-1. Check Home Assistant logs for errors
-2. Verify connection details are correct
-3. Test connectivity from Home Assistant to the device
-4. Try removing and re-adding the integration
+## Bill Period
 
-### Options Don't Save
+The `months` field indicates how many months the bill covers. A standard monthly bill has `months: 1`. A bimonthly bill has `months: 2`.
 
-If configuration changes aren't persisted:
+This affects the **average monthly** calculations:
 
-1. Check for validation errors in the UI
-2. Ensure values are within allowed ranges
-3. Review logs for detailed error messages
-4. Try restarting Home Assistant
+```
+average_monthly_cost = total_cost / months
+average_monthly_consumption = consumption / months
+```
 
-## Related Documentation
+A bill with `months: 2`, `total_cost: 143.52`, and `consumption: 412.0` contributes:
 
-- [Getting Started](./GETTING_STARTED.md) - Installation and initial setup
-- [Examples](./EXAMPLES.md) - Automation and dashboard examples
-- [GitHub Issues](https://github.com/andmaroz89/hacs-home-ledger/issues) - Report problems
+- Average monthly cost: 71.76 EUR
+- Average monthly consumption: 206.0 kWh
+
+## Entity Categories
+
+### Total Cost
+
+Cumulative cost across all bills for each utility, plus a combined total. Updates instantly when bills change. Uses `state_class: total`.
+
+### Total Consumption
+
+Cumulative consumption across all bills. Updates instantly. Uses `state_class: total`.
+
+### Average Monthly Cost
+
+Total cost divided by total months across all bills of that utility. Returns `None` if no bills exist. No `state_class` (derived value).
+
+### Average Monthly Consumption
+
+Total consumption divided by total months. Returns `None` if no bills exist. No `state_class` (derived value).
+
+### Cost Per Unit
+
+Total cost divided by total consumption. Returns `None` if consumption is zero. Displays as EUR/kWh or EUR/m³. No `state_class` (derived value).
+
+## Finding Your Config Entry ID
+
+1. Go to **Developer Tools → States**
+2. Search for `home_ledger`
+3. The config entry ID is visible in the entity attributes, or use **Developer Tools → Actions** and select the `home_ledger` integration — the UI will show available entries.

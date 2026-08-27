@@ -11,10 +11,7 @@ def calculate_total_cost(
     utility_type: str | None = None,
 ) -> float:
     """Calculate the total cost for the selected bills."""
-    return sum(
-        bill.total_cost for bill in bills
-        if utility_type is None or bill.utility_type == utility_type
-    )
+    return sum(bill.total_cost for bill in bills if utility_type is None or bill.utility_type == utility_type)
 
 
 def calculate_total_consumption(
@@ -22,10 +19,7 @@ def calculate_total_consumption(
     utility_type: str,
 ) -> float:
     """Calculate the total consumption for one utility type."""
-    return sum(
-        bill.consumption for bill in bills
-        if bill.utility_type == utility_type
-    )
+    return sum(bill.consumption for bill in bills if bill.utility_type == utility_type)
 
 
 def calculate_total_months(
@@ -33,10 +27,7 @@ def calculate_total_months(
     utility_type: str,
 ) -> int:
     """Calculate the covered months for one utility type."""
-    return sum(
-        bill.months for bill in bills
-        if bill.utility_type == utility_type
-    )
+    return sum(bill.months for bill in bills if bill.utility_type == utility_type)
 
 
 def calculate_average_monthly_cost(

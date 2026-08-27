@@ -20,6 +20,5 @@ async def async_setup_entry(
 ) -> None:
     """Set up the sensor platform."""
     async_add_entities(
-        HomeLedgerSensor(entry.runtime_data.coordinator, description)
-        for description in ENTITY_DESCRIPTIONS
+        HomeLedgerSensor(entry.runtime_data.coordinator, description) for description in ENTITY_DESCRIPTIONS
     )

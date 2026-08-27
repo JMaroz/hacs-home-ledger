@@ -1,159 +1,179 @@
-# Examples
+# Automation and Dashboard Examples
 
-This page provides ready-to-use examples for automations, dashboards, and blueprints
-with the Home Ledger custom integration.
-
-Replace entity IDs like `sensor.device_name_*` with your actual entity IDs after
-setting up the integration.
+All examples use Home Ledger's actual entity names.
 
 ## Automations
 
-### Notify when a sensor exceeds a threshold
+### Monthly Bill Reminder
+
+Send a notification on the 5th of each month reminding you to enter last month's bills.
 
 ```yaml
-automation:
-  - alias: "Alert when sensor is high"
-    trigger:
-      - trigger: numeric_state
-        entity_id: sensor.device_name_air_quality
-        above: 100
-    action:
-      - action: notify.notify
-        data:
-          title: "Air quality alert"
-          message: "Sensor value exceeded 100!"
-```
-
-### Turn on a switch when connectivity is lost
-
-```yaml
-automation:
-  - alias: "React to connectivity loss"
-    trigger:
-      - trigger: state
-        entity_id: binary_sensor.device_name_connectivity
-        to: "off"
-        for:
-          minutes: 5
-    action:
-      - action: switch.turn_off
-        target:
-          entity_id: switch.device_name_switch
-```
-
-### Call a service action on schedule
-
-```yaml
-automation:
-  - alias: "Refresh the data every morning"
-    trigger:
-      - trigger: time
-        at: "03:00:00"
-    action:
-      - action: home_ledger.refresh_data
-        data:
-          config_entry_id: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
-```
-
-### Use a blueprint for threshold alerts
-
-Save this as a blueprint file and import it in Home Assistant:
-
-```yaml
-blueprint:
-  name: Home Ledger — Threshold Alert
-  description: Send a notification when a sensor exceeds a configurable threshold.
-  domain: automation
-  input:
-    sensor_entity:
-      name: Sensor
-      selector:
-        entity:
-          domain: sensor
-          integration: home_ledger
-    threshold:
-      name: Threshold value
-      selector:
-        number:
-          min: 0
-          max: 1000
-    notify_target:
-      name: Notification service
-      default: notify.notify
-      selector:
-        text:
-
+alias: "Home Ledger: Monthly bill reminder"
 trigger:
-  - trigger: numeric_state
-    entity_id: !input sensor_entity
-    above: !input threshold
-
+  - platform: time
+    at: "18:00:00"
+condition:
+  - condition: time
+    day: 5
 action:
-  - action: !input notify_target
+  - service: notify.notify
     data:
-      message: >-
-        {{ state_attr(trigger.entity_id, 'friendly_name') }}
-        exceeded {{ threshold }} (current value: {{ trigger.to_state.state }}).
+      title: "Home Ledger"
+      message: "Don't forget to enter your utility bills for last month."
+```
+
+### High Electricity Cost Alert
+
+Alert when total electricity cost exceeds 200 EUR.
+
+```yaml
+alias: "Home Ledger: High electricity cost"
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.total_electricity_cost
+    above: 200
+action:
+  - service: notify.notify
+    data:
+      title: "Home Ledger"
+      message: "Electricity cost is {{ states('sensor.total_electricity_cost') }} EUR."
+```
+
+### Gas Consumption Threshold
+
+Notify when total gas consumption exceeds 500 m³.
+
+```yaml
+alias: "Home Ledger: High gas consumption"
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.total_gas_consumption
+    above: 500
+action:
+  - service: notify.notify
+    data:
+      title: "Home Ledger"
+      message: "Gas consumption is {{ states('sensor.total_gas_consumption') }} m³."
+```
+
+### Auto-Add Recurring Bill via Script
+
+Create a script to quickly add a monthly bill from an automation or voice assistant.
+
+```yaml
+alias: "Home Ledger: Add electricity bill"
+sequence:
+  - service: home_ledger.add_bill
+    data:
+      utility_type: electricity
+      months: 1
+      total_cost: "{{ cost }}"
+      consumption: "{{ consumption }}"
+```
+
+Call it:
+
+```yaml
+service: script.home_ledger_add_electricity_bill
+data:
+  cost: 85.50
+  consumption: 210.0
 ```
 
 ## Dashboard Cards
 
-### Sensor value card
+### Cost Trend Graph
+
+Track electricity costs over time.
 
 ```yaml
 type: sensor
-entity: sensor.device_name_air_quality
-name: Air Quality
+entity: sensor.total_electricity_cost
 graph: line
+name: Electricity Cost
+unit: EUR
 ```
 
-### Device summary — entities card
+### All Utilities Overview
 
-```yaml
-type: entities
-title: My Device
-entities:
-  - entity: sensor.device_name_air_quality
-    name: Air Quality
-  - entity: binary_sensor.device_name_connectivity
-    name: Connected
-  - entity: binary_sensor.device_name_filter
-    name: Filter Status
-  - entity: switch.device_name_switch
-    name: Power
-  - entity: select.device_name_fan_speed
-    name: Fan Speed
-  - entity: number.device_name_threshold
-    name: Threshold
-```
-
-### Status badge — multiple entities
+Combined cost, consumption, and averages in a single glance card.
 
 ```yaml
 type: glance
-title: Device Status
+title: Home Ledger
 entities:
-  - entity: binary_sensor.device_name_connectivity
-    name: Online
-  - entity: sensor.device_name_air_quality
-    name: Air Quality
-  - entity: binary_sensor.device_name_filter
-    name: Filter
-show_state: true
+  - entity: sensor.total_utility_cost
+    name: Total Cost
+  - entity: sensor.total_electricity_cost
+    name: Electricity
+  - entity: sensor.total_gas_cost
+    name: Gas
+  - entity: sensor.total_water_cost
+    name: Water
 ```
 
-### History graph
+### Consumption Summary
+
+Bar chart of total consumption per utility.
+
+```yaml
+type: entities
+title: Consumption
+entities:
+  - entity: sensor.total_electricity_consumption
+    name: Electricity (kWh)
+  - entity: sensor.total_gas_consumption
+    name: Gas (m³)
+  - entity: sensor.total_water_consumption
+    name: Water (m³)
+```
+
+### Cost Per Unit Comparison
+
+Compare cost efficiency across utilities.
+
+```yaml
+type: entities
+title: Cost Per Unit
+entities:
+  - entity: sensor.electricity_cost_per_unit
+    name: Electricity (EUR/kWh)
+  - entity: sensor.gas_cost_per_unit
+    name: Gas (EUR/m³)
+  - entity: sensor.water_cost_per_unit
+    name: Water (EUR/m³)
+```
+
+### History Graph
+
+Track all costs on a single timeline.
 
 ```yaml
 type: history-graph
-title: Air Quality (last 24 h)
+title: Utility Costs
+hours_to_show: 720
 entities:
-  - entity: sensor.device_name_air_quality
-hours_to_show: 24
+  - entity: sensor.total_electricity_cost
+    name: Electricity
+  - entity: sensor.total_gas_cost
+    name: Gas
+  - entity: sensor.total_water_cost
+    name: Water
 ```
 
-## Related Documentation
+### Average Monthly Cost Bar
 
-- [Configuration Reference](./CONFIGURATION.md) - All configuration options
-- [Getting Started](./GETTING_STARTED.md) - Installation and initial setup
-- [GitHub Issues](https://github.com/andmaroz89/hacs-home-ledger/issues) - Report problems
+Show average monthly cost per utility.
+
+```yaml
+type: entities
+title: Average Monthly Cost
+entities:
+  - entity: sensor.electricity_average_monthly_cost
+    name: Electricity
+  - entity: sensor.gas_average_monthly_cost
+    name: Gas
+  - entity: sensor.water_average_monthly_cost
+    name: Water
+```

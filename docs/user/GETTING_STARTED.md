@@ -1,191 +1,83 @@
 # Getting Started with Home Ledger
 
-This guide will help you install and set up the Home Ledger custom integration for Home Assistant.
+Home Ledger tracks your household utility bills (electricity, gas, water) and calculates totals, averages, and cost-per-unit — all stored locally in Home Assistant.
 
 ## Prerequisites
 
-- Home Assistant 2025.7.0 or newer
-- HACS (Home Assistant Community Store) installed
-- Network connectivity to [external service/device]
+- Home Assistant 2026.8.0 or newer
+- HACS installed (recommended) or manual file copy
 
 ## Installation
 
-### Via HACS (Recommended)
+### Via HACS (recommended)
 
-1. Open HACS in your Home Assistant instance
-2. Go to "Integrations"
-3. Click the three dots in the top right corner
-4. Select "Custom repositories"
-5. Add this repository URL: `https://github.com/andmaroz89/hacs-home-ledger`
-6. Set category to "Integration"
-7. Click "Add"
-8. Find "Home Ledger" in the integration list
-9. Click "Download"
-10. Restart Home Assistant
-
-### Manual Installation
-
-1. Download the latest release from the [releases page](https://github.com/andmaroz89/hacs-home-ledger/releases)
-2. Extract the `home_ledger` folder from the archive
-3. Copy it to `custom_components/home_ledger/` in your Home Assistant configuration directory
+1. Open HACS in Home Assistant
+2. Search for "Home Ledger"
+3. Click **Install**
 4. Restart Home Assistant
 
-## Initial Setup
+### Manual
 
-After installation, add the integration:
+1. Copy `custom_components/home_ledger/` into your `config/custom_components/` directory
+2. Restart Home Assistant
 
-1. Go to **Settings** → **Devices & Services**
-2. Click **+ Add Integration**
-3. Search for "Home Ledger"
-4. Follow the configuration steps:
+## Setup
 
-### Step 1: Connection Information
+1. Go to **Settings → Devices & Services → Add Integration**
+2. Search for **Home Ledger**
+3. Click **Submit** — no credentials or configuration needed
 
-Enter the required connection details:
+A single config entry is created. All bills are stored locally under this entry.
 
-- **Host/IP Address:** The hostname or IP address of your device/service
-- **API Key/Token:** Your authentication credentials (if applicable)
-- **Port:** Connection port (default: 8080)
+## Add Your First Bill
 
-Click **Submit** to test the connection.
+Open **Developer Tools → Services** and call `home_ledger.add_bill`:
 
-### Step 2: Configuration Options
+```yaml
+service: home_ledger.add_bill
+data:
+  utility_type: electricity
+  months: 2
+  total_cost: 143.52
+  consumption: 412.0
+```
 
-Configure optional settings:
+Or with a custom bill ID (useful for identifying bills):
 
-- **Update Interval:** How often to poll for updates (default: 5 minutes)
-- **Name:** Friendly name for this integration instance
-
-Click **Submit** to complete setup.
+```yaml
+service: home_ledger.add_bill
+data:
+  bill_id: electricity_jan_feb_2026
+  utility_type: electricity
+  months: 2
+  total_cost: 143.52
+  consumption: 412.0
+```
 
 ## What Gets Created
 
-After successful setup, the integration creates:
+After adding bills, 16 sensor entities appear under the Home Ledger device:
 
-### Devices
+| Category | Sensors |
+|---|---|
+| **Total cost** | `sensor.total_electricity_cost`, `sensor.total_gas_cost`, `sensor.total_water_cost`, `sensor.total_utility_cost` |
+| **Total consumption** | `sensor.total_electricity_consumption`, `sensor.total_gas_consumption`, `sensor.total_water_consumption` |
+| **Average monthly cost** | `sensor.electricity_average_monthly_cost`, `sensor.gas_average_monthly_cost`, `sensor.water_average_monthly_cost` |
+| **Average monthly consumption** | `sensor.electricity_average_monthly_consumption`, `sensor.gas_average_monthly_consumption`, `sensor.water_average_monthly_consumption` |
+| **Cost per unit** | `sensor.electricity_cost_per_unit`, `sensor.gas_cost_per_unit`, `sensor.water_cost_per_unit` |
 
-- **Device Name:** Main device representing your connected service/hardware
-  - Model information
-  - Software version
-  - Configuration URL (link to device web interface)
+## Your First Dashboard Card
 
-### Entities
-
-The following entities are automatically created:
-
-#### Sensors
-
-- `sensor.<device_name>_<sensor_name>` - Descriptive sensor measurements
-- More sensors as applicable to your setup
-
-#### Binary Sensors
-
-- `binary_sensor.<device_name>_<sensor_name>` - On/off status indicators
-
-#### Switches
-
-- `switch.<device_name>_<switch_name>` - Controllable on/off switches
-
-#### Other Platforms
-
-Additional entities may be created depending on your device capabilities.
-
-## First Steps
-
-### Dashboard Cards
-
-Add entities to your dashboard:
-
-1. Go to your dashboard
-2. Click **Edit Dashboard** → **Add Card**
-3. Choose card type (e.g., "Entities", "Glance")
-4. Select entities from "Home Ledger"
-
-Example entities card:
+Add a sensor card to your dashboard to track electricity costs over time:
 
 ```yaml
-type: entities
-title: Home Ledger
-entities:
-  - sensor.device_name_sensor
-  - binary_sensor.device_name_connectivity
-  - switch.device_name_switch
+type: sensor
+entity: sensor.total_electricity_cost
+graph: line
+name: Electricity Cost
 ```
-
-### Automations
-
-Use the integration in automations:
-
-**Example - Trigger on sensor change:**
-
-```yaml
-automation:
-  - alias: "React to sensor value"
-    trigger:
-      - trigger: state
-        entity_id: sensor.device_name_sensor
-    action:
-      - action: notify.notify
-        data:
-          message: "Sensor changed to {{ trigger.to_state.state }}"
-```
-
-**Example - Control switch based on time:**
-
-```yaml
-automation:
-  - alias: "Turn on in morning"
-    trigger:
-      - trigger: time
-        at: "07:00:00"
-    action:
-      - action: switch.turn_on
-        target:
-          entity_id: switch.device_name_switch
-```
-
-## Troubleshooting
-
-### Connection Failed
-
-If setup fails with connection errors:
-
-1. Verify the host/IP address is correct and reachable
-2. Check that the API key/token is valid
-3. Ensure no firewall is blocking the connection
-4. Check Home Assistant logs for detailed error messages
-
-### Entities Not Updating
-
-If entities show "Unavailable" or don't update:
-
-1. Check that the device/service is online
-2. Verify API credentials haven't expired
-3. Review logs: **Settings** → **System** → **Logs**
-4. Try reloading the integration
-
-### Debug Logging
-
-Enable debug logging to troubleshoot issues:
-
-```yaml
-logger:
-  default: warning
-  logs:
-    custom_components.home_ledger: debug
-```
-
-Add this to `configuration.yaml`, restart, and reproduce the issue. Check logs for detailed information.
 
 ## Next Steps
 
-- See [CONFIGURATION.md](./CONFIGURATION.md) for detailed configuration options
-- See [EXAMPLES.md](./EXAMPLES.md) for more automation examples
-- Report issues at [GitHub Issues](https://github.com/andmaroz89/hacs-home-ledger/issues)
-
-## Support
-
-For help and discussion:
-
-- [GitHub Discussions](https://github.com/andmaroz89/hacs-home-ledger/discussions)
-- [Home Assistant Community Forum](https://community.home-assistant.io/)
+- [Configuration reference](CONFIGURATION.md) — service actions, entity details
+- [Automation examples](EXAMPLES.md) — alerts, reminders, and more

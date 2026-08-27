@@ -6,234 +6,154 @@ This document describes the technical architecture of the Home Ledger custom com
 
 ```text
 custom_components/home_ledger/
-├── __init__.py              # Integration setup and unload
-├── config_flow.py           # Config flow entry point
-├── const.py                 # Constants and configuration keys
-├── coordinator/             # Data update coordinator package
+├── __init__.py              # Integration setup, wires store → coordinator → platforms
+├── calculations.py          # Pure functions: totals, averages, cost-per-unit
+├── config_flow.py           # Config flow discovery shim
+├── const.py                 # DOMAIN, LOGGER
+├── coordinator/
 │   ├── __init__.py          # Exports HomeLedgerDataUpdateCoordinator
-│   └── base.py              # Main coordinator class
-├── data.py                  # Data classes and type definitions
-├── diagnostics.py           # Diagnostic data for troubleshooting
-├── entity/                  # Base entity package
+│   └── base.py              # Local coordinator (no polling)
+├── data.py                  # HomeLedgerAggregates, HomeLedgerData, HomeLedgerConfigEntry
+├── entity/
 │   ├── __init__.py          # Exports HomeLedgerEntity
-│   └── base.py              # Base entity class implementation
+│   └── base.py              # Base entity with DeviceInfo
 ├── icons.json               # Entity and service action icons
 ├── manifest.json            # Integration metadata
-├── repairs.py               # Repair flows for fixing issues
-├── services.yaml            # Service action definitions (legacy filename)
-├── api/                     # External API communication
-│   ├── __init__.py
-│   └── client.py            # API client implementation
-├── config_flow_handler/     # Config flow implementation
+├── models.py                # Bill dataclass, UtilityType enum, validation
+├── services.yaml            # Service action definitions
+├── storage.py               # HomeLedgerStore wrapping HA Store
+├── config_flow_handler/
 │   ├── __init__.py          # Package exports
-│   ├── config_flow.py       # Main config flow (user, reauth, reconfigure)
-│   ├── options_flow.py      # Options flow
-│   ├── schemas/             # Voluptuous schemas
-│   │   ├── __init__.py      # Schema exports
-│   │   ├── config.py        # Config flow schemas
-│   │   └── options.py       # Options flow schemas
-│   └── validators/          # Input validation
-│       ├── __init__.py      # Validator exports
-│       └── credentials.py   # Credential validation
-├── service_actions/         # Service action implementations
-│   ├── __init__.py          # Registration in async_setup()
-│   └── refresh_data.py      # The refresh_data handler
-├── translations/            # Localization files
-│   └── en.json              # English translations
-└── <platform>/              # Platform-specific implementations
-    ├── __init__.py          # Platform setup and PARALLEL_UPDATES
-    └── <entity>.py          # Entity descriptions and entity class
+│   └── config_flow.py       # Single-entry config flow (no credentials)
+├── sensor/
+│   ├── __init__.py          # Platform setup
+│   ├── entity.py            # HomeLedgerSensor entity class
+│   └── utilities.py         # 16 sensor descriptions
+├── service_actions/
+│   └── __init__.py          # CRUD service actions, registered in async_setup()
+└── translations/
+    └── en.json              # English translations
 ```
-
-`entity_utils/` and `utils/` are part of the permitted package set in
-[`AGENTS.md`](../../AGENTS.md) but do not exist until something needs them — an entity helper
-used by three or more entity classes, or an integration-wide utility.
 
 ## Core Components
 
-### Data Update Coordinator
+### Bill Storage
 
-**Directory:** `coordinator/`
+**File:** `storage.py`
 
-The coordinator fetches the device state once per interval and hands the same payload to every
-entity, so no entity ever calls the API itself.
+Wraps `homeassistant.helpers.storage.Store` to persist bills on disk. Bills are stored as a list of dicts under the key `bills`. The store provides:
 
-**Core functionality:**
+- `add_bill(bill)` — append and persist
+- `update_bill(bill_id, changes)` — patch fields and persist
+- `delete_bill(bill_id)` — remove and persist
+- `list_bills()` — return all bills as `Bill` objects
+- Listener pattern — coordinator registers for change notifications
 
-- Update interval from `entry.options`, defaulting to one hour
-- Translation of API client exceptions into `ConfigEntryAuthFailed` and `UpdateFailed`
-- Raising and clearing the repair issue for the deprecated API version
+### Data Coordinator
 
-**Key class:** `HomeLedgerDataUpdateCoordinator` (exported from `coordinator/__init__.py`)
+**File:** `coordinator/base.py`
 
-Retries and backoff are **not** implemented here. Home Assistant already retries `UpdateFailed`
-with exponential backoff, and failures are logged by Home Assistant, not by the coordinator.
+`HomeLedgerDataUpdateCoordinator` extends `DataUpdateCoordinator` with `update_interval=None`. There is nothing to poll — data changes only when the user mutates bills.
 
-**Design rationale:**
+Aggregates are recalculated on demand via `async_refresh_bills()`, which calls `async_set_updated_data()` to push new values to all entities instantly.
 
-The coordinator is a package rather than a single file so that transform helpers, a cache or a
-push listener can be added as separate modules once they are needed — each staying under the
-200–400 line guideline and testable on its own.
+### Aggregates
 
-### API Client
+**File:** `data.py`
 
-**Directory:** `api/`
+`HomeLedgerData.calculate_aggregates()` runs all pure calculation functions against the current bill list and returns a frozen `HomeLedgerAggregates` dataclass. This is what the coordinator hands to every entity.
 
-Handles all communication with external APIs or devices. Implements:
+### Sensor Platform
 
-- Async HTTP requests using `aiohttp`
-- Connection management and timeouts
-- Authentication handling
-- Error translation to custom exceptions
+**Files:** `sensor/utilities.py`, `sensor/entity.py`
 
-**Key class:** `HomeLedgerApiClient`
+16 sensor descriptions defined declaratively as tuples. Each has a `value_fn` that reads one field from `HomeLedgerAggregates`. The entity class dispatches to `value_fn` in its `native_value` property.
+
+Categories:
+- **Total cost** — cumulative EUR per utility + combined
+- **Total consumption** — cumulative kWh / m³ per utility
+- **Average monthly cost** — EUR/month across all bills of that utility
+- **Average monthly consumption** — unit/month across all bills
+- **Cost per unit** — EUR/kWh or EUR/m³
+
+### Service Actions
+
+**File:** `service_actions/__init__.py`
+
+Four service actions registered in `async_setup()` (not `async_setup_entry`):
+
+- `add_bill` — create, returns stored bill
+- `update_bill` — partial update, returns stored bill
+- `delete_bill` — remove, returns bill ID
+- `list_bills` — return all bills (response-only)
+
+All use voluptuous schemas for validation and `ServiceValidationError` for user-facing errors.
 
 ### Config Flow
 
-**Directory:** `config_flow_handler/`
+**File:** `config_flow_handler/config_flow.py`
 
-Implements the configuration UI for adding and configuring the integration. The package
-is organized modularly to support complex flows without becoming monolithic.
-
-**Structure:**
-
-- `config_flow.py`: Main flow (user setup, reauth, reconfigure)
-- `options_flow.py`: Options flow for post-setup configuration
-- `schemas/`: Voluptuous schemas for all forms
-- `validators/`: Validation logic separated from flow logic
-
-**Supported flows:**
-
-- Initial user setup with validation
-- Options flow for the poll interval
-- Reauthentication flow for expired credentials
-- Reconfiguration of the stored credentials
-
-A subentry flow goes in `config_flow_handler/subentry_flow.py` when the integration grows to
-need one; see [`ha-config-flow`](../../.agents/skills/ha-config-flow/SKILL.md).
-
-**Key classes:**
-
-- `HomeLedgerConfigFlowHandler` (main flow)
-- `HomeLedgerOptionsFlow` (options)
-
-### Base Entity
-
-**Package:** `entity/`
-
-Provides common functionality for all entities in the integration:
-
-- Device information
-- Unique ID generation
-- Coordinator integration
-- Availability tracking
-
-**Key class:** `HomeLedgerEntity` (in `entity/base.py`)
-
-## Platform Organization
-
-Each platform (sensor, binary_sensor, switch, etc.) follows this pattern:
-
-```text
-<platform>/
-├── __init__.py              # Platform setup: async_setup_entry()
-└── <entity_name>.py         # Individual entity implementation
-```
-
-Platform entities inherit from both:
-
-1. Home Assistant platform base (e.g., `SensorEntity`)
-2. `HomeLedgerEntity` for common functionality
+Minimal single-entry flow. No credentials, no options. User clicks Submit and a config entry is created.
 
 ## Data Flow
 
 ```text
 ┌─────────────────┐
-│  Config Entry   │ ← Created by config flow
+│  Config Entry   │ ← Created by config flow (no credentials)
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│   Coordinator   │ ← Fetches data from API every 5 min
+│  HomeLedgerStore│ ← HA Store on disk
 └────────┬────────┘
-         │
+         │  add / update / delete via service actions
          ▼
-    ┌────┴────┐
-    │  Data   │ ← Stored in coordinator.data
-    └────┬────┘
-         │
-    ┌────┴────────────────┐
-    │                     │
-    ▼                     ▼
-┌─────────┐         ┌─────────┐
-│ Sensor  │         │ Switch  │ ← Entities read from coordinator
-└─────────┘         └─────────┘
+┌─────────────────┐
+│   Coordinator   │ ← async_refresh_bills() after each mutation
+└────────┬────────┘
+         │  HomeLedgerAggregates
+         ▼
+┌─────────────────┐
+│  16 Sensors     │ ← each reads one field from aggregates
+└─────────────────┘
 ```
-
-## AI Agent Context
-
-Agent-facing content is layered so each piece is loaded only when it is relevant:
-
-| Layer                             | Loaded                      | Contains                                          |
-| --------------------------------- | --------------------------- | ------------------------------------------------- |
-| `AGENTS.md`                       | always                      | project identity, workflow rules, validation loop |
-| `.agents/instructions/*.md`       | per touched file            | passive style rules for one file type             |
-| `.agents/skills/*/SKILL.md`       | when a task matches         | active procedures for a specific kind of work     |
-| `docs/development/`, `docs/user/` | when a human or agent reads | explanations, decisions, guides — this document   |
-
-Style rules belong in `.agents/instructions/`, procedures belong in a skill, explanations belong in `docs/`.
-
-One copy of each instruction file serves two agents: GitHub Copilot and VS Code match its `applyTo` glob string,
-Claude Code matches the same patterns via `paths` (a YAML list, one pattern per item) and reaches the same files
-through the `.claude/rules/instructions` symlink. Codex has no comparable file-triggered mechanism — its nested
-`AGENTS.md` support keys off the working directory rather than the file being edited — so it relies on the root
-`AGENTS.md` plus the pointers each skill carries.
-
-The skill catalogue, the symlink layout that makes one directory work for every agent vendor, and the rules for writing
-a new skill are documented in [`.agents/skills/README.md`](../../.agents/skills/README.md).
-
-For working with AI coding agents in this repository, see [`AI_AGENTS.md`](./AI_AGENTS.md).
-
-## Key Design Decisions
-
-See [DECISIONS.md](./DECISIONS.md) for architectural and design decisions made during development.
 
 ## Extension Points
 
 To add new functionality:
 
-### Adding a New Platform
+### Adding a New Sensor
 
-1. Create directory: `custom_components/home_ledger/<platform>/`
-2. Implement `__init__.py` with `async_setup_entry()`
-3. Create entity classes inheriting from platform base + `HomeLedgerEntity`
-4. Add platform to `PLATFORMS` in `__init__.py`
+1. Add a field to `HomeLedgerAggregates` in `data.py`
+2. Add a calculation function in `calculations.py`
+3. Call it from `HomeLedgerData.calculate_aggregates()`
+4. Add a `HomeLedgerSensorEntityDescription` to the appropriate tuple in `sensor/utilities.py`
+5. Add translation key to `translations/en.json`
 
 ### Adding a New Service Action
 
-1. Create service action handler in `service_actions/<service_name>.py`
-2. Define service action in `services.yaml` (legacy filename) with schema
-3. Register service action in `__init__.py:async_setup()` (NOT `async_setup_entry`)
+1. Define schema and handler in `service_actions/__init__.py`
+2. Register in `async_setup_services()` (called from `async_setup()`)
+3. Add service definition to `services.yaml`
+4. Add translations to `translations/en.json`
 
-### Modifying Data Structure
+### Adding a New Utility Type
 
-1. Update coordinator data type in `coordinator.py`
-2. Adjust API client response parsing in `api/client.py`
-3. Update entity property implementations to match new structure
+1. Add value to `UtilityType` enum in `models.py`
+2. Add unit mapping to `UTILITY_UNITS` in `models.py`
+3. Add sensor descriptions for the new type in `sensor/utilities.py`
+4. Update `services.yaml` enum values
 
 ## Testing Strategy
 
-- **Unit tests:** Test individual functions and classes in isolation
-- **Integration tests:** Test coordinator with mocked API
-- **Fixtures:** Shared test fixtures in `tests/conftest.py`
+- **Unit tests:** Pure calculation functions (`test_calculations.py`), Bill model (`test_models.py`)
+- **Integration tests:** Config flow (`test_config_flow.py`), setup and service actions (`test_init.py`, `test_service_actions.py`)
+- **Fixtures:** Shared in `tests/conftest.py` — `config_entry`, `init_integration`
 
 Tests mirror the source structure under `tests/`.
 
 ## Dependencies
 
-Core dependencies (see `manifest.json`):
-
-- `aiohttp` - Async HTTP client
-- Home Assistant 2025.7.0+ - Platform requirements
-
-Development dependencies (see `requirements_dev.txt`, `requirements_test.txt`).
+- **Runtime:** Home Assistant 2026.8.0+ (from `hacs.json`)
+- **No external libraries** — only HA core modules (Store, Coordinator, Entity)
+- **Dev tools:** ruff (linting), pyright (type checking), pytest + pytest-homeassistant-custom-component
