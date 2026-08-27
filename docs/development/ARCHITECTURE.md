@@ -24,7 +24,8 @@ custom_components/home_ledger/
 ├── storage.py               # HomeLedgerStore wrapping HA Store
 ├── config_flow_handler/
 │   ├── __init__.py          # Package exports
-│   └── config_flow.py       # Single-entry config flow (no credentials)
+│   ├── config_flow.py       # Config flow + options flow wiring
+│   └── options_flow.py      # Add bills via Settings UI
 ├── sensor/
 │   ├── __init__.py          # Platform setup
 │   ├── entity.py            # HomeLedgerSensor entity class
@@ -93,7 +94,15 @@ All use voluptuous schemas for validation and `ServiceValidationError` for user-
 
 **File:** `config_flow_handler/config_flow.py`
 
-Minimal single-entry flow. No credentials, no options. User clicks Submit and a config entry is created.
+Minimal single-entry flow. No credentials required. User clicks Submit and a config entry is created.
+
+### Options Flow
+
+**File:** `config_flow_handler/options_flow.py`
+
+Provides an in-UI way to add bills via **Settings → Devices & services → Home Ledger → Options**. The form has five fields: utility type, months covered, total cost, consumption, and an optional bill ID. On submit, a `Bill` is created, stored, and the coordinator is refreshed.
+
+This is an alternative to the `add_bill` service action — both write to the same store.
 
 ## Data Flow
 
@@ -106,7 +115,9 @@ Minimal single-entry flow. No credentials, no options. User clicks Submit and a 
 ┌─────────────────┐
 │  HomeLedgerStore│ ← HA Store on disk
 └────────┬────────┘
-         │  add / update / delete via service actions
+         │  add / update / delete via:
+         │    • service actions (automations, scripts)
+         │    • options flow (Settings UI)
          ▼
 ┌─────────────────┐
 │   Coordinator   │ ← async_refresh_bills() after each mutation

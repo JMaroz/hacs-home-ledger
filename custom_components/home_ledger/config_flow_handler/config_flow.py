@@ -4,8 +4,11 @@ from typing import Any
 
 import voluptuous as vol
 
+from custom_components.home_ledger.config_flow_handler.options_flow import HomeLedgerOptionsFlowHandler
 from custom_components.home_ledger.const import DOMAIN
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import callback
 
 _ENTRY_TITLE = "Home Ledger"
 _INSTALLATION_UNIQUE_ID = "home_ledger"
@@ -15,6 +18,14 @@ class HomeLedgerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the config flow for home_ledger."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        """Return the options flow handler."""
+        return HomeLedgerOptionsFlowHandler()
 
     async def async_step_user(
         self,

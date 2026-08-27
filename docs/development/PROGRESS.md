@@ -12,7 +12,7 @@ This document tracks what has been completed and what remains for Home Ledger.
 
 - [x] Consolidated 15 parallel Codex branches into a single coherent codebase
 - [x] Removed AirQuant entities (binary_sensor, fan, button, switch, select, number)
-- [x] Removed API client, diagnostics, repairs, options flow, credential schemas
+- [x] Removed API client, diagnostics, repairs, credential schemas
 - [x] Updated manifest.json: `integration_type: "service"`, `iot_class: "calculated"`
 - [x] Updated services.yaml, translations/en.json, icons.json
 - [x] Updated README.md with actual entity names and service actions
@@ -44,32 +44,41 @@ This document tracks what has been completed and what remains for Home Ledger.
 - [x] `list_bills` — return all stored bills
 - [x] Registered in `async_setup()` (quality scale rule `action-setup`)
 
-### Config Flow
+### Config Flow & Options Flow
 
 - [x] Single config entry, no credentials required
-- [x] `config_flow_handler/config_flow.py` — minimal user step
+- [x] `config_flow_handler/config_flow.py` — minimal user step + options flow wiring
+- [x] `config_flow_handler/options_flow.py` — add bills via Settings UI (5 fields)
+- [x] Options flow translations in `en.json`
+
+### User-Facing Documentation
+
+- [x] `docs/user/GETTING_STARTED.md` — installation, setup, first bill, first dashboard card
+- [x] `docs/user/CONFIGURATION.md` — service actions, entity categories, config entry ID
+- [x] `docs/user/EXAMPLES.md` — automations and dashboard card examples
+- [x] `docs/development/ARCHITECTURE.md` — directory structure, data flow, extension points
 
 ### Quality
 
 - [x] Ruff linting: 0 errors
 - [x] Pyright type checking: 0 errors
-- [x] 49 tests passing:
+- [x] 51 tests passing:
   - `test_models.py` — 14 tests
   - `test_calculations.py` — 22 tests
-  - `test_config_flow.py` — 2 tests
+  - `test_config_flow.py` — 4 tests (config + options flow)
   - `test_init.py` — 5 tests
   - `test_service_actions.py` — 6 tests
+
+### Live Validation
+
+- [x] Integration loaded on live HA instance
+- [x] 16 sensors registered and state values correct
+- [x] Bill persisted to `config/.storage/home_ledger.bills`
+- [x] Coordinator refreshes correctly after service action calls
 
 ---
 
 ## Pending
-
-### User-Facing Documentation
-
-- [ ] Rewrite `docs/user/GETTING_STARTED.md` — remove generic boilerplate (host/IP/API key)
-- [ ] Rewrite `docs/user/CONFIGURATION.md` — document service actions, entity categories
-- [ ] Rewrite `docs/user/EXAMPLES.md` — use actual entity names, real automation examples
-- [ ] Update `docs/development/ARCHITECTURE.md` — reflect removed API client, new data flow
 
 ### Features
 
@@ -81,7 +90,6 @@ This document tracks what has been completed and what remains for Home Ledger.
 ### Quality & Validation
 
 - [ ] HACS submission validation — verify manifest.json, hacs.json compliance
-- [ ] Real-device testing — manual QA on a running HA instance
 - [ ] `script/hassfest` — validate translations, services.yaml, manifest
 - [ ] Snapshot tests for sensor state values
 

@@ -31,6 +31,17 @@ A single config entry is created. All bills are stored locally under this entry.
 
 ## Add Your First Bill
 
+You have two ways to add bills:
+
+### Option A: Settings UI (recommended for first-time users)
+
+1. Go to **Settings → Devices & services → Home Ledger**
+2. Click **Options**
+3. Fill in the form: utility type, months, total cost, consumption
+4. Click **Submit**
+
+### Option B: Service Action (recommended for automations)
+
 Open **Developer Tools → Services** and call `home_ledger.add_bill`:
 
 ```yaml

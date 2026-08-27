@@ -33,3 +33,69 @@ async def test_config_flow_already_configured(hass: HomeAssistant) -> None:
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
     assert result["type"] == FlowResultType.ABORT
     assert result["reason"] == "already_configured"
+
+
+async def test_options_flow_add_bill(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+) -> None:
+    """Test adding a bill via the options flow."""
+    config_entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "init"
+
+    result2 = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            "utility_type": "electricity",
+            "months": 2,
+            "total_cost": 143.52,
+            "consumption": 412.0,
+        },
+    )
+    assert result2["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify bill was stored
+    store = config_entry.runtime_data.bill_storage
+    bills = store.list_bills()
+    assert len(bills) == 1
+    assert bills[0].utility_type == "electricity"
+    assert bills[0].months == 2
+    assert bills[0].total_cost == 143.52
+    assert bills[0].consumption == 412.0
+
+
+async def test_options_flow_add_bill_with_custom_id(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+) -> None:
+    """Test adding a bill with a custom ID via the options flow."""
+    config_entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    assert result["type"] == FlowResultType.FORM
+
+    result2 = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            "utility_type": "gas",
+            "months": 1,
+            "total_cost": 85.0,
+            "consumption": 120.0,
+            "bill_id": "gas_january",
+        },
+    )
+    assert result2["type"] == FlowResultType.CREATE_ENTRY
+
+    # Verify bill was stored with custom ID
+    store = config_entry.runtime_data.bill_storage
+    bills = store.list_bills()
+    assert len(bills) == 1
+    assert bills[0].id == "gas_january"
+    assert bills[0].utility_type == "gas"

@@ -87,26 +87,26 @@ Each decision is documented with:
 
 ---
 
-### Service-Action CRUD Instead of Options Flow
+### Service-Action CRUD + Options Flow for Bill Entry
 
-**Date:** 2026-08-27 (Consolidation)
+**Date:** 2026-08-27 (Consolidation + Options Flow)
 
-**Context:** Users manage bills by adding, updating, and deleting records — not by toggling configuration options.
+**Context:** Users manage bills by adding, updating, and deleting records. Service actions are powerful for automations but require knowing the `config_entry_id`. A UI option is useful for one-off entries.
 
-**Decision:** Expose four service actions (`add_bill`, `update_bill`, `delete_bill`, `list_bills`) instead of an options flow. Service actions are registered in `async_setup()`.
+**Decision:** Expose four service actions (`add_bill`, `update_bill`, `delete_bill`, `list_bills`) registered in `async_setup()`, plus an options flow with a single `async_step_init` form for adding bills via the Settings UI.
 
 **Rationale:**
 
-- Bill management is action-oriented, not configuration-oriented
-- Service actions can be called from automations, scripts, and the developer tools
-- `SupportsResponse` returns the affected bill, making automations easier
-- Registration in `async_setup()` follows the `action-setup` quality scale rule
+- Service actions cover automations, scripts, and developer tools — the primary power-user path
+- Options flow provides a discoverable UI path for casual use without needing `config_entry_id`
+- Both write to the same `HomeLedgerStore`, so data is always consistent
+- Options flow is intentionally add-only (no update/delete) to keep the form simple
 
 **Consequences:**
 
-- No in-UI bill management (by design — bill entry is external)
-- Service schemas enforce validation centrally
-- `config_entry_id` field is required in every call
+- Two entry points for bill creation: service action (with `config_entry_id`) and options flow (implicitly scoped to the entry)
+- `update_bill` and `delete_bill` remain service-action-only (no UI equivalent yet)
+- Options flow translations live in `en.json` under the `options` key
 
 ---
 

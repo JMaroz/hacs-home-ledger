@@ -12,6 +12,26 @@
       "already_configured": "Home Ledger is already configured."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Add a bill",
+        "description": "Enter the details of your utility bill.",
+        "data": {
+          "utility_type": "Utility type",
+          "months": "Months covered",
+          "total_cost": "Total cost (EUR)",
+          "consumption": "Consumption",
+          "bill_id": "Bill ID (optional)"
+        },
+        "data_description": {
+          "bill_id": "A custom identifier for this bill. One is generated automatically when left empty."
+        }
+      }
+    },
+    "error": {},
+    "abort": {}
+  },
   "exceptions": {
     "entry_not_found": {
       "message": "No configuration entry of this integration matches {target}."

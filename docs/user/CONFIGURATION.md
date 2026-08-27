@@ -1,6 +1,20 @@
 # Configuration Reference
 
-Home Ledger has no configuration options. All interaction happens through four service actions.
+Home Ledger has no configuration options. Bills are added via the Settings UI (options flow) or four service actions.
+
+## Options Flow (Settings UI)
+
+Go to **Settings → Devices & services → Home Ledger → Options** to add bills through a form.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `utility_type` | select | yes | `electricity`, `gas`, or `water` |
+| `months` | integer | yes | Number of months the bill covers (≥ 1) |
+| `total_cost` | float | yes | Total cost in EUR (≥ 0) |
+| `consumption` | float | yes | Total consumption in the unit for that utility (≥ 0) |
+| `bill_id` | string | no | Custom ID. Auto-generated if omitted |
+
+The options flow is add-only. To update or delete bills, use the service actions below.
 
 ## Service Actions
 
