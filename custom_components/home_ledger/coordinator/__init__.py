@@ -1,4 +1,4 @@
-"""Data update coordinator package for home_ledger."""
+"""Coordinator package for home_ledger."""
 
 from .base import HomeLedgerDataUpdateCoordinator
 

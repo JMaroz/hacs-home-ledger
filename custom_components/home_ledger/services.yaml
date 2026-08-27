@@ -2,15 +2,131 @@
 # The names and descriptions here are only the fallback shown when a translation is
 # missing; users see services.<action>.* from translations/en.json.
 
-refresh_data:
-  name: Refresh data
-  description: Fetch the current device state immediately instead of waiting for the next poll.
+add_bill:
+  name: Add bill
+  description: Store a new utility bill in the ledger.
   fields:
-    config_entry_id:
+    config_entry_id: &config_entry_id
       name: Integration entry
-      description: The configuration entry to refresh.
+      description: The Home Ledger configuration entry to use.
       required: true
       example: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
       selector:
         config_entry:
           integration: home_ledger
+    bill_id:
+      name: Bill ID
+      description: Optional stable bill identifier. One is generated when omitted.
+      example: electricity_january
+      selector:
+        text:
+    utility_type:
+      name: Utility type
+      description: Type of utility.
+      required: true
+      example: electricity
+      selector:
+        select:
+          options:
+            - electricity
+            - gas
+            - water
+    months:
+      name: Months
+      description: Number of months covered by this bill.
+      required: true
+      example: 2
+      selector:
+        number:
+          min: 1
+          mode: box
+          step: 1
+    total_cost:
+      name: Total cost
+      description: Total cost of the bill in EUR.
+      required: true
+      example: 143.52
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.01
+    consumption:
+      name: Consumption
+      description: Total consumption indicated on the bill.
+      required: true
+      example: 412.0
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.1
+
+update_bill:
+  name: Update bill
+  description: Update an existing utility bill in the ledger.
+  fields:
+    config_entry_id: *config_entry_id
+    bill_id:
+      name: Bill ID
+      description: Stable identifier of the bill to update.
+      required: true
+      example: electricity_january
+      selector:
+        text:
+    utility_type:
+      name: Utility type
+      description: New utility type.
+      example: electricity
+      selector:
+        select:
+          options:
+            - electricity
+            - gas
+            - water
+    months:
+      name: Months
+      description: New number of months.
+      example: 2
+      selector:
+        number:
+          min: 1
+          mode: box
+          step: 1
+    total_cost:
+      name: Total cost
+      description: New total cost in EUR.
+      example: 143.52
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.01
+    consumption:
+      name: Consumption
+      description: New consumption value.
+      example: 412.0
+      selector:
+        number:
+          min: 0
+          mode: box
+          step: 0.1
+
+delete_bill:
+  name: Delete bill
+  description: Remove a utility bill from the ledger.
+  fields:
+    config_entry_id: *config_entry_id
+    bill_id:
+      name: Bill ID
+      description: Stable identifier of the bill to delete.
+      required: true
+      example: electricity_january
+      selector:
+        text:
+
+list_bills:
+  name: List bills
+  description: Return all utility bills stored in the ledger.
+  fields:
+    config_entry_id: *config_entry_id

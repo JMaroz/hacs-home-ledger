@@ -2,149 +2,161 @@
   "config": {
     "step": {
       "user": {
-        "description": "If you need help with the configuration have a look at the [documentation]({documentation_url}).",
-        "data": {
-          "username": "Username",
-          "password": "Password"
-        },
-        "data_description": {
-          "username": "The account name you use to sign in to the device.",
-          "password": "The password for that account. It is stored encrypted and never written to the log."
-        }
-      },
-      "reconfigure": {
-        "description": "Update the credentials for this integration.",
-        "data": {
-          "username": "Username",
-          "password": "Password"
-        },
-        "data_description": {
-          "username": "The account name you use to sign in to the device.",
-          "password": "The password for that account."
-        }
-      },
-      "reauth_confirm": {
-        "title": "Reauthenticate integration",
-        "description": "The credentials for {username} are no longer valid. Provide updated credentials to restore access.",
-        "data": {
-          "username": "Username",
-          "password": "Password"
-        },
-        "data_description": {
-          "username": "The account name you use to sign in to the device.",
-          "password": "The current password for that account."
-        }
+        "description": "Set up Home Ledger to track your household utility costs and consumption.",
+        "data": {},
+        "data_description": {}
       }
     },
-    "error": {
-      "cannot_connect": "Unable to connect to the server.",
-      "invalid_auth": "The username or password is wrong.",
-      "unknown": "An unknown error occurred."
-    },
+    "error": {},
     "abort": {
-      "already_configured": "This entry is already configured.",
-      "reauth_successful": "Reauthentication was successful.",
-      "reconfigure_successful": "Reconfiguration was successful."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Configure integration options",
-        "description": "Customize how this integration operates.",
-        "data": {
-          "update_interval_hours": "Update interval (hours)"
-        },
-        "data_description": {
-          "update_interval_hours": "How often to fetch the device state, between 0.25 and 24 hours."
-        }
-      }
+      "already_configured": "Home Ledger is already configured."
     }
   },
   "exceptions": {
-    "authentication_failed": {
-      "message": "Authentication failed during the data update."
-    },
-    "update_failed": {
-      "message": "Failed to fetch data from the device."
-    },
-    "switch_set_failed": {
-      "message": "Failed to change the {name} setting on the device."
-    },
-    "number_set_failed": {
-      "message": "Failed to set the target humidity on the device."
-    },
-    "reset_filter_failed": {
-      "message": "Failed to reset the filter timer on the device."
-    },
-    "fan_speed_set_failed": {
-      "message": "Failed to change the fan speed on the device."
-    },
-    "fan_state_set_failed": {
-      "message": "Failed to turn the fan on or off."
-    },
-    "invalid_fan_speed": {
-      "message": "{speed} is not a fan speed this device supports."
-    },
     "entry_not_found": {
       "message": "No configuration entry of this integration matches {target}."
     },
     "entry_not_loaded": {
-      "message": "The configuration entry {target} is not loaded, so it cannot be refreshed."
+      "message": "The configuration entry {target} is not loaded."
+    },
+    "bill_not_found": {
+      "message": "Bill with ID {bill_id} was not found."
     }
   },
   "entity": {
     "sensor": {
-      "filter_life": {
-        "name": "Filter life remaining"
+      "total_electricity_cost": {
+        "name": "Total electricity cost"
       },
-      "runtime": {
-        "name": "Total runtime"
-      }
-    },
-    "binary_sensor": {
-      "filter_replacement": {
-        "name": "Filter replacement needed"
-      }
-    },
-    "switch": {
-      "child_lock": {
-        "name": "Child lock"
+      "total_gas_cost": {
+        "name": "Total gas cost"
       },
-      "led_display": {
-        "name": "LED display"
-      }
-    },
-    "select": {
-      "fan_speed": {
-        "name": "Fan speed",
-        "state": {
-          "low": "Low",
-          "medium": "Medium",
-          "high": "High",
-          "auto": "Auto"
-        }
-      }
-    },
-    "number": {
-      "target_humidity": {
-        "name": "Target humidity"
-      }
-    },
-    "button": {
-      "reset_filter": {
-        "name": "Reset filter timer"
+      "total_water_cost": {
+        "name": "Total water cost"
+      },
+      "total_utility_cost": {
+        "name": "Total utility cost"
+      },
+      "total_electricity_consumption": {
+        "name": "Total electricity consumption"
+      },
+      "total_gas_consumption": {
+        "name": "Total gas consumption"
+      },
+      "total_water_consumption": {
+        "name": "Total water consumption"
+      },
+      "electricity_average_monthly_cost": {
+        "name": "Electricity average monthly cost"
+      },
+      "gas_average_monthly_cost": {
+        "name": "Gas average monthly cost"
+      },
+      "water_average_monthly_cost": {
+        "name": "Water average monthly cost"
+      },
+      "electricity_average_monthly_consumption": {
+        "name": "Electricity average monthly consumption"
+      },
+      "gas_average_monthly_consumption": {
+        "name": "Gas average monthly consumption"
+      },
+      "water_average_monthly_consumption": {
+        "name": "Water average monthly consumption"
+      },
+      "electricity_cost_per_unit": {
+        "name": "Electricity cost per kWh"
+      },
+      "gas_cost_per_unit": {
+        "name": "Gas cost per m³"
+      },
+      "water_cost_per_unit": {
+        "name": "Water cost per m³"
       }
     }
   },
   "services": {
-    "refresh_data": {
-      "name": "Refresh data",
-      "description": "Fetches the current device state immediately instead of waiting for the next poll.",
+    "add_bill": {
+      "name": "Add bill",
+      "description": "Store a new utility bill in the ledger.",
       "fields": {
         "config_entry_id": {
           "name": "Integration entry",
-          "description": "The configuration entry to refresh."
+          "description": "The Home Ledger configuration entry to use."
+        },
+        "bill_id": {
+          "name": "Bill ID",
+          "description": "Optional stable bill identifier. One is generated when omitted."
+        },
+        "utility_type": {
+          "name": "Utility type",
+          "description": "Type of utility: electricity, gas, or water."
+        },
+        "months": {
+          "name": "Months",
+          "description": "Number of months covered by this bill."
+        },
+        "total_cost": {
+          "name": "Total cost",
+          "description": "Total cost of the bill in EUR."
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "Total consumption indicated on the bill."
+        }
+      }
+    },
+    "update_bill": {
+      "name": "Update bill",
+      "description": "Update an existing utility bill in the ledger.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Integration entry",
+          "description": "The Home Ledger configuration entry to use."
+        },
+        "bill_id": {
+          "name": "Bill ID",
+          "description": "Stable identifier of the bill to update."
+        },
+        "utility_type": {
+          "name": "Utility type",
+          "description": "New utility type."
+        },
+        "months": {
+          "name": "Months",
+          "description": "New number of months."
+        },
+        "total_cost": {
+          "name": "Total cost",
+          "description": "New total cost in EUR."
+        },
+        "consumption": {
+          "name": "Consumption",
+          "description": "New consumption value."
+        }
+      }
+    },
+    "delete_bill": {
+      "name": "Delete bill",
+      "description": "Remove a utility bill from the ledger.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Integration entry",
+          "description": "The Home Ledger configuration entry to use."
+        },
+        "bill_id": {
+          "name": "Bill ID",
+          "description": "Stable identifier of the bill to delete."
+        }
+      }
+    },
+    "list_bills": {
+      "name": "List bills",
+      "description": "Return all utility bills stored in the ledger.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Integration entry",
+          "description": "The Home Ledger configuration entry to use."
         }
       }
     }

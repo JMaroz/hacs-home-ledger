@@ -13,7 +13,7 @@ from homeassistant.helpers.typing import StateType
 class HomeLedgerSensorEntityDescription(SensorEntityDescription):
     """Describes a sensor and how to read it from coordinator data."""
 
-    value_fn: Callable[[dict[str, Any]], StateType]
+    value_fn: Callable[[Any], StateType]
 
 
 class HomeLedgerSensor(SensorEntity, HomeLedgerEntity):

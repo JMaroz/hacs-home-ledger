@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from custom_components.home_ledger.const import ATTRIBUTION
+from custom_components.home_ledger.const import DOMAIN
 from custom_components.home_ledger.coordinator import HomeLedgerDataUpdateCoordinator
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -12,15 +12,8 @@ if TYPE_CHECKING:
 
 
 class HomeLedgerEntity(CoordinatorEntity[HomeLedgerDataUpdateCoordinator]):
-    """
-    Base entity providing device info, unique ID and attribution.
+    """Base entity providing device info, unique ID and attribution."""
 
-    The unique ID is `{entry_id}_{key}`, the documented identifier of last resort.
-    A real integration switches to the device's serial, MAC or account ID before its
-    first release, because changing it afterwards needs a registry migration.
-    """
-
-    _attr_attribution = ATTRIBUTION
     _attr_has_entity_name = True
 
     def __init__(
@@ -34,14 +27,9 @@ class HomeLedgerEntity(CoordinatorEntity[HomeLedgerDataUpdateCoordinator]):
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={
-                (
-                    coordinator.config_entry.domain,
-                    coordinator.config_entry.entry_id,
-                ),
+                (DOMAIN, coordinator.config_entry.entry_id),
             },
-            name=coordinator.config_entry.title,
+            name="Home Ledger",
             manufacturer="Home Ledger",
-            model=coordinator.data["model"],
-            serial_number=coordinator.data["serial_number"],
-            sw_version=coordinator.data["sw_version"],
+            model="Home Ledger",
         )

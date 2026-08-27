@@ -7,265 +7,197 @@
 [![hacs][hacsbadge]][hacs]
 ![Project Maintenance][maintenance-shield]
 
-<!--
-Uncomment and customize these badges if you want to use them:
+Home Ledger is a Home Assistant custom integration for tracking household utility costs, consumption, photovoltaic investments and return on investment.
 
-[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
-[![Discord][discord-shield]][discord]
--->
+## Features
 
-**✨ Develop in the cloud:** Want to contribute or customize this integration? Open it directly in GitHub Codespaces - no local setup required!
+- **Utility Bill Tracking**: Track electricity, gas, and water bills with full CRUD operations
+- **Persistent Storage**: All data is stored locally using Home Assistant's storage system
+- **Smart Calculations**: Automatic calculation of totals, averages, and cost per unit
+- **Service Actions**: Add, update, delete, and list bills via service calls
+- **16 Sensor Entities**: Comprehensive sensors for costs, consumption, averages, and cost per unit
+- **Simple Setup**: No credentials required - just install and start tracking
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/andmaroz89/hacs-home-ledger?quickstart=1)
+## Supported Utilities
 
-## ✨ Features
+| Utility | Unit | Description |
+|---------|------|-------------|
+| Electricity | kWh | Track electricity consumption and costs |
+| Gas | m³ | Track gas consumption and costs |
+| Water | m³ | Track water consumption and costs |
 
-- **Easy Setup**: Simple configuration through the UI - no YAML required
-- **Air Quality Monitoring**: Track AQI and PM2.5 levels in real-time
-- **Filter Management**: Monitor filter life and get replacement alerts
-- **Smart Control**: Adjust fan speed, target humidity, and operating modes
-- **Child Lock**: Safety feature to prevent accidental changes
-- **Diagnostic Info**: View filter life, runtime hours, and device statistics
-- **Reconfigurable**: Change credentials anytime without removing the integration
-- **Options Flow**: Adjust settings like update interval after setup
-- **Custom Services**: Advanced control with built-in service calls
+## Installation
 
-**This integration will set up the following platforms.**
+### HACS (Recommended)
 
-| Platform        | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| `sensor`        | Air quality index (AQI), PM2.5, filter life, and runtime |
-| `binary_sensor` | API connection status and filter replacement alert       |
-| `switch`        | Child lock and LED display controls                      |
-| `select`        | Fan speed selection (Low/Medium/High/Auto)               |
-| `number`        | Target humidity setting (30-80%)                         |
-| `button`        | Reset filter timer after replacement                     |
-| `fan`           | Air purifier fan control with speed settings             |
+1. Open HACS in Home Assistant
+2. Go to Integrations
+3. Search for "Home Ledger"
+4. Click Download
+5. Restart Home Assistant
 
-> [!TIP]
-> **Interactive Demo:** The entities are interconnected for demonstration.
-> Press the **Reset Filter Timer** button to see **Filter Life Remaining** update to 100%.
-> Changing the **Air Purifier** fan speed syncs the **Fan Speed** select, and vice versa.
+### Manual Installation
 
-## 🚀 Quick Start
-
-### Step 1: Install the Integration
-
-**Prerequisites:** This integration requires [HACS](https://hacs.xyz/) (Home Assistant Community Store) to be installed.
-
-Click the button below to open the integration directly in HACS:
-
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=andmaroz89&repository=hacs-home-ledger&category=integration)
-
-Then:
-
-1. Click "Download" to install the integration
-2. **Restart Home Assistant** (required after installation)
-
-> [!NOTE]
-> The My Home Assistant redirect will first take you to a landing page. Click the button there to open your Home Assistant instance.
-
-<details>
-<summary><strong>Manual Installation (Advanced)</strong></summary>
-
-If you prefer not to use HACS:
-
-1. Download the `custom_components/home_ledger/` folder from this repository
+1. Download the `custom_components/home_ledger/` folder
 2. Copy it to your Home Assistant's `custom_components/` directory
 3. Restart Home Assistant
 
-</details>
-
-### Step 2: Add and Configure the Integration
-
-**Important:** You must have installed the integration first (see Step 1) and restarted Home Assistant!
-
-#### Option 1: One-Click Setup (Quick)
-
-Click the button below to open the configuration dialog:
-
-[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=home_ledger)
-
-Follow the setup wizard:
-
-1. Enter your username
-2. Enter your password
-3. Click Submit
-
-That's it! The integration will start loading your data.
-
-#### Option 2: Manual Configuration
+## Configuration
 
 1. Go to **Settings** → **Devices & Services**
 2. Click **"+ Add Integration"**
 3. Search for "Home Ledger"
-4. Follow the same setup steps as Option 1
+4. Follow the setup wizard
 
-### Step 3: Adjust Settings (Optional)
+The integration requires no credentials or external connections - it stores all data locally.
 
-After setup, you can adjust options:
+## Usage
 
-1. Go to **Settings** → **Devices & Services**
-2. Find **Home Ledger**
-3. Click **Configure** to adjust:
-   - Update interval (how often to refresh data)
-   - Enable debug logging
+### Adding Bills via Service Actions
 
-You can also **Reconfigure** your credentials anytime without removing the integration.
-
-### Step 4: Start Using!
-
-The integration creates several entities for your air purifier:
-
-- **Sensors**: Air quality index, PM2.5 levels, filter life remaining, total runtime
-- **Binary Sensors**: API connection status, filter replacement alert
-- **Switches**: Child lock, LED display control
-- **Select**: Fan speed (Low/Medium/High/Auto)
-- **Number**: Target humidity (30-80%)
-- **Button**: Reset filter timer
-- **Fan**: Air purifier fan control
-
-Find all entities in **Settings** → **Devices & Services** → **Home Ledger** → click on the device.
-
-## Available Entities
-
-### Sensors
-
-- **Air Quality Index (AQI)**: Real-time air quality measurement (0-500 scale)
-  - Includes air quality category (Good/Moderate/Unhealthy/etc.)
-  - Health recommendations based on current AQI
-- **PM2.5**: Fine particulate matter concentration in µg/m³
-- **Filter Life Remaining** (Diagnostic): Shows remaining filter life as percentage
-- **Total Runtime** (Diagnostic): Total operating hours of the device
-
-### Binary Sensors
-
-- **API Connection**: Shows whether the connection to the API is active
-  - On: Connected and receiving data
-  - Off: Connection lost or authentication failed
-  - Shows update interval and API endpoint information
-- **Filter Replacement Needed**: Alerts when filter needs replacement
-  - Shows estimated days remaining
-  - Turns on when filter life is low
-
-### Switches
-
-- **Child Lock**: Prevents accidental button presses on the device
-  - Icon changes based on state (locked/unlocked)
-- **LED Display**: Enable/disable the LED display
-  - Disabled by default - enable in entity settings if needed
-
-### Select
-
-- **Fan Speed**: Choose from Low, Medium, High, or Auto
-  - Icon changes dynamically based on selected speed
-  - Auto mode adjusts speed based on air quality
-  - Syncs bidirectionally with the Air Purifier fan entity
-
-### Number
-
-- **Target Humidity**: Set desired humidity level (30-80%)
-  - Adjustable in 5% increments
-  - Displayed as a slider in the UI
-
-### Button
-
-- **Reset Filter Timer**: Reset the filter life to 100%
-  - Press to reset after replacing the filter
-  - Instantly updates the Filter Life Remaining sensor
-
-### Fan
-
-- **Air Purifier**: Control the air purifier fan speed and power
-  - Three speed levels: Low, Medium, High
-  - Syncs bidirectionally with the Fan Speed select entity
-  - Turn on/off functionality
-
-## Custom Services
-
-The integration provides services for advanced automation:
-
-### `home_ledger.example_action`
-
-Perform a custom action (customize this for your needs).
-
-**Example:**
+Use the `home_ledger.add_bill` service to add utility bills:
 
 ```yaml
-service: home_ledger.example_action
+service: home_ledger.add_bill
 data:
-  # Add your parameters here
+  config_entry_id: "YOUR_CONFIG_ENTRY_ID"
+  utility_type: "electricity"
+  months: 2
+  total_cost: 143.52
+  consumption: 412.0
 ```
 
-### `home_ledger.reload_data`
+#### Parameters
 
-Manually refresh data from the API without waiting for the update interval.
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `config_entry_id` | Yes | The Home Ledger config entry ID |
+| `utility_type` | Yes | `electricity`, `gas`, or `water` |
+| `months` | Yes | Number of months covered (1, 2, 3, 6, 12, etc.) |
+| `total_cost` | Yes | Total cost in EUR |
+| `consumption` | Yes | Total consumption value |
+| `bill_id` | No | Custom ID (auto-generated if omitted) |
 
-**Example:**
+### Updating Bills
 
 ```yaml
-service: home_ledger.reload_data
+service: home_ledger.update_bill
+data:
+  config_entry_id: "YOUR_CONFIG_ENTRY_ID"
+  bill_id: "electricity_january"
+  total_cost: 150.00
 ```
 
-Use these services in automations or scripts for more control.
+### Deleting Bills
 
-## Configuration Options
+```yaml
+service: home_ledger.delete_bill
+data:
+  config_entry_id: "YOUR_CONFIG_ENTRY_ID"
+  bill_id: "electricity_january"
+```
 
-### During Setup
+### Listing Bills
 
-| Name     | Required | Description           |
-| -------- | -------- | --------------------- |
-| Username | Yes      | Your account username |
-| Password | Yes      | Your account password |
+```yaml
+service: home_ledger.list_bills
+data:
+  config_entry_id: "YOUR_CONFIG_ENTRY_ID"
+```
 
-### After Setup (Options)
+## Available Sensors
 
-You can change these anytime by clicking **Configure**:
+### Cost Sensors
 
-| Name             | Default | Description                |
-| ---------------- | ------- | -------------------------- |
-| Update Interval  | 1 hour  | How often to refresh data  |
-| Enable Debugging | Off     | Enable extra debug logging |
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| Total electricity cost | € | Sum of all electricity bills |
+| Total gas cost | € | Sum of all gas bills |
+| Total water cost | € | Sum of all water bills |
+| Total utility cost | € | Sum of all utility costs |
+
+### Consumption Sensors
+
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| Total electricity consumption | kWh | Sum of all electricity consumption |
+| Total gas consumption | m³ | Sum of all gas consumption |
+| Total water consumption | m³ | Sum of all water consumption |
+
+### Average Monthly Sensors
+
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| Electricity average monthly cost | € | Total cost / total months |
+| Gas average monthly cost | € | Total cost / total months |
+| Water average monthly cost | € | Total cost / total months |
+| Electricity average monthly consumption | kWh | Total consumption / total months |
+| Gas average monthly consumption | m³ | Total consumption / total months |
+| Water average monthly consumption | m³ | Total consumption / total months |
+
+### Cost per Unit Sensors
+
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| Electricity cost per unit | €/kWh | Total cost / total consumption |
+| Gas cost per unit | €/m³ | Total cost / total consumption |
+| Water cost per unit | €/m³ | Total cost / total consumption |
+
+## Dashboard Example
+
+```yaml
+type: entities
+entities:
+  - entity: sensor.total_electricity_cost
+  - entity: sensor.total_gas_cost
+  - entity: sensor.total_water_cost
+  - entity: sensor.total_utility_cost
+  - type: divider
+  - entity: sensor.total_electricity_consumption
+  - entity: sensor.total_gas_consumption
+  - entity: sensor.total_water_consumption
+  - type: divider
+  - entity: sensor.electricity_average_monthly_cost
+  - entity: sensor.gas_average_monthly_cost
+  - entity: sensor.water_average_monthly_cost
+  - type: divider
+  - entity: sensor.electricity_cost_per_unit
+  - entity: sensor.gas_cost_per_unit
+  - entity: sensor.water_cost_per_unit
+```
+
+## Important Notes
+
+### Bill Periods
+
+The `months` parameter is crucial for accurate calculations. Bills can cover different periods:
+
+- 1 = monthly bill
+- 2 = bimonthly bill
+- 3 = quarterly bill
+- 6 = semi-annual bill
+- 12 = annual bill
+
+The integration correctly calculates averages using total months, not just the number of bills.
+
+### Example Calculation
+
+```
+Bills:
+- Electricity 2 months → €100
+- Electricity 2 months → €120
+- Electricity 1 month → €60
+
+Total = €280
+Total months = 5
+Average monthly cost = €56
+```
 
 ## Troubleshooting
 
-### Authentication Issues
-
-#### Reauthentication
-
-If your credentials expire or change, Home Assistant will automatically prompt you to reauthenticate:
-
-1. Go to **Settings** → **Devices & Services**
-2. Look for **"Action Required"** or **"Configuration Required"** message on the integration
-3. Click **"Reconfigure"** or follow the prompt
-4. Enter your updated credentials
-5. Click Submit
-
-The integration will automatically resume normal operation with the new credentials.
-
-#### Manual Credential Update
-
-You can also update credentials at any time without waiting for an error:
-
-1. Go to **Settings** → **Devices & Services**
-2. Find **Home Ledger**
-3. Click the **3 dots menu** → **Reconfigure**
-4. Enter new username/password
-5. Click Submit
-
-#### Connection Status
-
-Monitor your connection status with the **API Connection** binary sensor:
-
-- **On** (Connected): Integration is receiving data normally
-- **Off** (Disconnected): Connection lost or authentication failed
-  - Check the binary sensor attributes for diagnostic information
-  - Verify credentials if authentication failed
-  - Check network connectivity
-
 ### Enable Debug Logging
 
-To enable debug logging for this integration, add the following to your `configuration.yaml`:
+Add to your `configuration.yaml`:
 
 ```yaml
 logger:
@@ -274,135 +206,11 @@ logger:
     custom_components.home_ledger: debug
 ```
 
-### Common Issues
-
-#### Authentication Errors
-
-If you receive authentication errors:
-
-1. Verify your username and password are correct
-2. Check that your account has the necessary permissions
-3. Wait for the automatic reauthentication prompt, or manually reconfigure
-4. Check the API Connection binary sensor for status
-
-#### Device Not Responding
-
-If your device is not responding:
-
-1. Check the **API Connection** binary sensor - it should be "On"
-2. Check your network connection
-3. Verify the device is powered on
-4. Check the integration diagnostics (Settings → Devices & Services → Home Ledger → 3 dots → Download diagnostics)
-
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please open an issue or pull request if you have suggestions or improvements.
 
-You have two options to set up a development environment — expand below for full details.
-
-<details>
-<summary><strong>Development Setup</strong></summary>
-
-Both options provide the same fully-configured environment with Home Assistant, Python 3.14, Node.js LTS, and all necessary tools.
-
-### Option 1: GitHub Codespaces (Recommended) ☁️
-
-Develop directly in your browser without installing anything locally!
-
-1. Click the green **"Code"** button in this repository
-2. Switch to the **"Codespaces"** tab
-3. Click **"Create codespace on main"**
-4. **Wait for setup** (2-3 minutes first time) — everything installs automatically
-5. **Review and commit** your changes in the Source Control panel (`Ctrl+Shift+G`)
-
-> [!TIP]
-> Codespaces gives you **60 hours/month free** for personal accounts. When you start Home Assistant (`script/develop`), port 8123 forwards automatically.
-
-### Option 2: Local Development with VS Code 💻
-
-#### Prerequisites
-
-You'll need these installed locally:
-
-- **A Docker-compatible container engine** — see options by platform:
-
-  | Option                                                                                                                   | 🍎 macOS | 🐧 Linux | 🪟 Windows | Notes                                                                                                                                                                                                                                     |
-  | ------------------------------------------------------------------------------------------------------------------------ | :------: | :------: | :--------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-  | [Docker Desktop](https://www.docker.com/products/docker-desktop/)                                                        |    ✅    |    ✅    |     ✅     | **Easiest starting point for all platforms.** GUI-based, well-documented, one installer. Uses WSL2 as default backend on Windows (Hyper-V also available). Installation requires admin rights; daily use does not. Free for personal use. |
-  | [OrbStack](https://orbstack.dev/) ⭐                                                                                     |    ✅    |    —     |     —      | **Recommended for macOS** once Docker Desktop feels slow. Starts in ~2s, much lighter on RAM/CPU, full Docker API compatibility. Free for personal use.                                                                                   |
-  | [Docker CE](https://docs.docker.com/engine/install/) (native) ⭐                                                         |    —     |    ✅    |     —      | **Recommended for Linux.** Install directly via your package manager — no VM, no GUI, no overhead. Free.                                                                                                                                  |
-  | [WSL2](https://learn.microsoft.com/windows/wsl/install) + [Docker CE](https://docs.docker.com/engine/install/ubuntu/) ⭐ |    —     |    —     |     ✅     | **Recommended for Windows** once you're comfortable with WSL2. Docker runs natively inside WSL2 — no GUI overhead. Requires one-time WSL2 setup. Free.                                                                                    |
-  | [Rancher Desktop](https://rancherdesktop.io/)                                                                            |    ✅    |    ✅    |     ✅     | Open source by SUSE. GUI-based, uses WSL2 on Windows. Good alternative to Docker Desktop. Free.                                                                                                                                           |
-  | [Colima](https://github.com/abiosoft/colima)                                                                             |    ✅    |    ✅    |     —      | CLI-only, very lightweight. Good for terminal-focused workflows. Free.                                                                                                                                                                    |
-
-- **VS Code** with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-- **Git** — macOS and Linux usually have it already; see below if not, or to get a newer version:
-  - **🍎 macOS:** The system Git (`xcode-select --install`) works fine. Recommended: `brew install git` ([Homebrew](https://brew.sh/)) for a current version.
-  - **🐧 Linux:** Usually pre-installed. If not: `sudo apt install git` (or your distro's equivalent).
-  - **🪟 Windows + WSL2 ⭐:** Install Git _inside WSL2_ with `sudo apt install git`. Git on Windows itself is not needed — VS Code clones and operates entirely within WSL2.
-  - **🪟 Windows + Docker Desktop:** Install via `winget install Git.Git` or download [Git for Windows](https://git-scm.com/download/win).
-- **Hardware** — the devcontainer runs a full Home Assistant instance including Python tooling:
-
-  |          | Minimum    | Recommended                           |
-  | -------- | ---------- | ------------------------------------- |
-  | **RAM**  | 8 GB       | 16 GB or more                         |
-  | **CPU**  | 4 cores    | 8 cores or more                       |
-  | **Disk** | 10 GB free | 20 GB free (SSD strongly recommended) |
-
-> [!TIP]
-> **Not sure which Docker option to pick?** Start with [Docker Desktop](https://www.docker.com/products/docker-desktop/) — it works on all platforms, has a GUI, and needs no extra setup. The ⭐ options are faster alternatives once you're comfortable. macOS and Linux offer the best devcontainer experience — containers run with no extra VM layer and file I/O is fast. Windows works well too; this integration uses named container volumes (files live inside WSL2, not on the Windows drive) to keep performance acceptable.
-
-> [!NOTE]
-> **New to Dev Containers?** See the [VS Code Dev Containers documentation](https://code.visualstudio.com/docs/devcontainers/containers#_system-requirements) for system requirements and how to install the extension. **Once the extension is installed, you're done** — this repository already ships a complete devcontainer configuration. You don't need to follow the rest of the VS Code guide; the setup steps below are all that's needed.
-
-#### Setup Steps
-
-1. **Clone in a Dev Container:**
-
-   **🍎 macOS / 🐧 Linux:** Clone the repository and open the folder in VS Code → click **"Reopen in Container"** when prompted (or `F1` → **"Dev Containers: Reopen in Container"**).
-
-   **🪟 Windows:** In VS Code, press `F1` → **"Dev Containers: Clone Repository in Named Container Volume..."** and enter the repository URL. This keeps files inside WSL2 for best I/O performance.
-
-2. Wait for the container to build (2-3 minutes first time)
-
-3. **Review and commit** changes in Source Control (`Ctrl+Shift+G`)
-
-4. **Start developing**:
-
-   ```bash
-   script/develop  # Home Assistant runs at http://localhost:8123
-   ```
-
-> [!NOTE]
-> Both Codespaces and local DevContainer provide the exact same experience. The only difference is where the container runs (GitHub's cloud vs. your machine).
-
-</details>
-
----
-
-## 🤖 AI-Assisted Development
-
-> [!NOTE]
-> **Transparency Notice:** This integration was developed with assistance from AI coding agents (GitHub Copilot,
-> Claude, and others). AI assistance by itself neither guarantees nor rules out software quality. To make an informed
-> installation decision, review the project's stated maturity, known limitations, automated test coverage, real-device
-> testing, and the extent of human review. The maintainer should replace the fields below with accurate project-specific
-> details rather than implying checks that were not performed. See the blueprint's [`AI_POLICY.md`](AI_POLICY.md) for
-> guidance.
->
-> - **AI assistance:** limited / substantial / predominant
-> - **Human review:** complete / partial / spot-checked / not performed
-> - **Automated tests:** [describe or state "not performed"]
-> - **Real-device or service testing:** [describe or state "not performed"]
-> - **Maturity and known limitations:** [describe]
->
-> If you encounter unexpected behavior, please [open an issue](../../issues) on GitHub.
->
-> _This section can be removed or modified if AI assistance was not used in your integration's development._
-
----
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -421,10 +229,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [releases-shield]: https://img.shields.io/github/release/andmaroz89/hacs-home-ledger.svg?style=for-the-badge
 [releases]: https://github.com/andmaroz89/hacs-home-ledger/releases
 [user_profile]: https://github.com/andmaroz89
-
-<!-- Optional badge definitions - uncomment if needed:
-[buymecoffee]: https://www.buymeacoffee.com/andmaroz89
-[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
-[discord]: https://discord.gg/Qa5fW2R
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
--->

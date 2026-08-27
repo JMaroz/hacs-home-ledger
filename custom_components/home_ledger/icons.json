@@ -1,39 +1,68 @@
 {
   "entity": {
     "sensor": {
-      "filter_life": {
-        "default": "mdi:air-filter"
-      }
-    },
-    "switch": {
-      "child_lock": {
-        "default": "mdi:lock",
-        "state": {
-          "off": "mdi:lock-open-variant"
-        }
+      "total_electricity_cost": {
+        "default": "mdi:flash"
       },
-      "led_display": {
-        "default": "mdi:led-on",
-        "state": {
-          "off": "mdi:led-off"
-        }
-      }
-    },
-    "select": {
-      "fan_speed": {
-        "default": "mdi:fan",
-        "state": {
-          "low": "mdi:fan-speed-1",
-          "medium": "mdi:fan-speed-2",
-          "high": "mdi:fan-speed-3",
-          "auto": "mdi:fan-auto"
-        }
+      "total_gas_cost": {
+        "default": "mdi:fire"
+      },
+      "total_water_cost": {
+        "default": "mdi:water"
+      },
+      "total_utility_cost": {
+        "default": "mdi:receipt"
+      },
+      "total_electricity_consumption": {
+        "default": "mdi:flash"
+      },
+      "total_gas_consumption": {
+        "default": "mdi:fire"
+      },
+      "total_water_consumption": {
+        "default": "mdi:water"
+      },
+      "electricity_average_monthly_cost": {
+        "default": "mdi:flash"
+      },
+      "gas_average_monthly_cost": {
+        "default": "mdi:fire"
+      },
+      "water_average_monthly_cost": {
+        "default": "mdi:water"
+      },
+      "electricity_average_monthly_consumption": {
+        "default": "mdi:flash"
+      },
+      "gas_average_monthly_consumption": {
+        "default": "mdi:fire"
+      },
+      "water_average_monthly_consumption": {
+        "default": "mdi:water"
+      },
+      "electricity_cost_per_unit": {
+        "default": "mdi:flash"
+      },
+      "gas_cost_per_unit": {
+        "default": "mdi:fire"
+      },
+      "water_cost_per_unit": {
+        "default": "mdi:water"
       }
     }
   },
   "services": {
-    "refresh_data": {
-      "service": "mdi:refresh"
+    "add_bill": {
+      "service": "mdi:receipt"
+    },
+    "update_bill": {
+      "service": "mdi:receipt-text"
+    },
+    "delete_bill": {
+      "service": "mdi:receipt-text-remove"
+    },
+    "list_bills": {
+      "service": "mdi:format-list-bulleted"
     }
   }
 }
