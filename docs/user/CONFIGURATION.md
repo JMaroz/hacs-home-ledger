@@ -26,7 +26,8 @@ Create a new bill.
 |---|---|---|---|
 | `config_entry_id` | string | yes | The config entry ID (from Developer Tools → States) |
 | `utility_type` | string | yes | `electricity`, `gas`, or `water` |
-| `months` | integer | yes | Number of months the bill covers (≥ 1) |
+| `start_date` | string | yes | Start date in ISO format (YYYY-MM-DD) |
+| `end_date` | string | yes | End date in ISO format (YYYY-MM-DD) |
 | `total_cost` | float | yes | Total cost in EUR (≥ 0) |
 | `consumption` | float | yes | Total consumption in the unit for that utility (≥ 0) |
 | `bill_id` | string | no | Custom ID. Auto-generated if omitted |
@@ -46,7 +47,8 @@ service: home_ledger.add_bill
 data:
   config_entry_id: YOUR_ENTRY_ID
   utility_type: electricity
-  months: 2
+  start_date: "2026-01-01"
+  end_date: "2026-01-31"
   total_cost: 143.52
   consumption: 412.0
 ```
@@ -60,7 +62,8 @@ Update an existing bill. Only the fields you provide are changed.
 | `config_entry_id` | string | yes | The config entry ID |
 | `bill_id` | string | yes | The bill to update |
 | `utility_type` | string | no | New utility type |
-| `months` | integer | no | New month count |
+| `start_date` | string | no | New start date (YYYY-MM-DD) |
+| `end_date` | string | no | New end date (YYYY-MM-DD) |
 | `total_cost` | float | no | New total cost |
 | `consumption` | float | no | New consumption |
 
@@ -110,19 +113,14 @@ data:
 
 ## Bill Period
 
-The `months` field indicates how many months the bill covers. A standard monthly bill has `months: 1`. A bimonthly bill has `months: 2`.
+The `start_date` and `end_date` fields define the exact period covered by the bill.
 
 This affects the **average monthly** calculations:
+1. Total days are summed across all bills for a utility.
+2. Daily average cost = Total Cost / Total Days.
+3. Monthly average cost = Daily Average * 30.44.
 
-```
-average_monthly_cost = total_cost / months
-average_monthly_consumption = consumption / months
-```
-
-A bill with `months: 2`, `total_cost: 143.52`, and `consumption: 412.0` contributes:
-
-- Average monthly cost: 71.76 EUR
-- Average monthly consumption: 206.0 kWh
+Example: A bill from 2026-01-01 to 2026-01-30 (30 days) with a cost of 300 EUR contributes a daily cost of 10 EUR, resulting in a monthly average of 304.40 EUR.
 
 ## Entity Categories
 

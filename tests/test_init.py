@@ -5,7 +5,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.home_ledger.const import DOMAIN
 from custom_components.home_ledger.service_actions import (
     ATTR_CONSUMPTION,
-    ATTR_MONTHS,
+    ATTR_START_DATE,
+    ATTR_END_DATE,
     ATTR_TOTAL_COST,
     ATTR_UTILITY_TYPE,
     SERVICE_ADD_BILL,
@@ -76,7 +77,8 @@ async def test_persistence_after_reload(
         {
             "config_entry_id": config_entry.entry_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 2,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 143.52,
             ATTR_CONSUMPTION: 412.0,
         },
@@ -117,7 +119,8 @@ async def test_sensors_update_after_bill_change(
         {
             "config_entry_id": config_entry.entry_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 2,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 143.52,
             ATTR_CONSUMPTION: 412.0,
         },

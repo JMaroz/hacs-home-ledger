@@ -1,19 +1,21 @@
 """Tests for Home Ledger calculation functions."""
 
+from datetime import date
 from custom_components.home_ledger.calculations import (
     calculate_average_monthly_consumption,
     calculate_average_monthly_cost,
     calculate_cost_per_unit,
     calculate_total_consumption,
     calculate_total_cost,
-    calculate_total_months,
+    calculate_total_days,
 )
 from custom_components.home_ledger.models import Bill
 
 
 def _bill(
     utility_type: str = "electricity",
-    months: int = 1,
+    start_date: date = date(2026, 1, 1),
+    end_date: date = date(2026, 1, 31),
     total_cost: float = 100.0,
     consumption: float = 200.0,
 ) -> Bill:
@@ -21,7 +23,8 @@ def _bill(
     return Bill(
         id="test",
         utility_type=utility_type,
-        months=months,
+        start_date=start_date,
+        end_date=end_date,
         total_cost=total_cost,
         consumption=consumption,
     )
@@ -88,23 +91,23 @@ class TestCalculateTotalConsumption:
         assert calculate_total_consumption(bills, "gas") == 100.0
 
 
-class TestCalculateTotalMonths:
-    """Tests for calculate_total_months."""
+class TestCalculateTotalDays:
+    """Tests for calculate_total_days."""
 
     def test_empty_list(self) -> None:
-        assert calculate_total_months([], "electricity") == 0
+        assert calculate_total_days([], "electricity") == 0
 
     def test_single_bill(self) -> None:
-        bills = [_bill(months=2)]
-        assert calculate_total_months(bills, "electricity") == 2
+        # Jan 1 to Jan 31 = 31 days
+        bills = [_bill(start_date=date(2026, 1, 1), end_date=date(2026, 1, 31))]
+        assert calculate_total_days(bills, "electricity") == 31
 
     def test_multiple_bills(self) -> None:
         bills = [
-            _bill(months=2),
-            _bill(months=3),
-            _bill(months=1),
+            _bill(start_date=date(2026, 1, 1), end_date=date(2026, 1, 10)), # 10 days
+            _bill(start_date=date(2026, 1, 11), end_date=date(2026, 1, 20)), # 10 days
         ]
-        assert calculate_total_months(bills, "electricity") == 6
+        assert calculate_total_days(bills, "electricity") == 20
 
 
 class TestCalculateAverageMonthlyCost:
@@ -114,17 +117,23 @@ class TestCalculateAverageMonthlyCost:
         assert calculate_average_monthly_cost([], "electricity") is None
 
     def test_single_bill(self) -> None:
-        bills = [_bill(months=2, total_cost=100.0)]
-        assert calculate_average_monthly_cost(bills, "electricity") == 50.0
+        import pytest
+        # 30 days, cost 300 -> 10/day -> 10 * 30.44 = 304.4
+        bills = [_bill(
+            start_date=date(2026, 1, 1), 
+            end_date=date(2026, 1, 30), 
+            total_cost=300.0
+        )]
+        assert calculate_average_monthly_cost(bills, "electricity") == pytest.approx(304.4, 0.01)
 
     def test_multiple_bills(self) -> None:
+        import pytest
+        # Total cost = 300, total days = 30 -> 10/day -> 304.4
         bills = [
-            _bill(months=2, total_cost=100.0),
-            _bill(months=2, total_cost=120.0),
-            _bill(months=1, total_cost=60.0),
+            _bill(start_date=date(2026, 1, 1), end_date=date(2026, 1, 15), total_cost=150.0),
+            _bill(start_date=date(2026, 1, 16), end_date=date(2026, 1, 30), total_cost=150.0),
         ]
-        # Total cost = 280, total months = 5, average = 56
-        assert calculate_average_monthly_cost(bills, "electricity") == 56.0
+        assert calculate_average_monthly_cost(bills, "electricity") == pytest.approx(304.4, 0.01)
 
 
 class TestCalculateAverageMonthlyConsumption:
@@ -134,16 +143,22 @@ class TestCalculateAverageMonthlyConsumption:
         assert calculate_average_monthly_consumption([], "electricity") is None
 
     def test_single_bill(self) -> None:
-        bills = [_bill(months=2, consumption=400.0)]
-        assert calculate_average_monthly_consumption(bills, "electricity") == 200.0
+        import pytest
+        # 30 days, cons 300 -> 10/day -> 10 * 30.44 = 304.4
+        bills = [_bill(
+            start_date=date(2026, 1, 1), 
+            end_date=date(2026, 1, 30), 
+            consumption=300.0
+        )]
+        assert calculate_average_monthly_consumption(bills, "electricity") == pytest.approx(304.4, 0.01)
 
     def test_multiple_bills(self) -> None:
+        import pytest
         bills = [
-            _bill(months=2, consumption=400.0),
-            _bill(months=3, consumption=600.0),
+            _bill(start_date=date(2026, 1, 1), end_date=date(2026, 1, 15), consumption=150.0),
+            _bill(start_date=date(2026, 1, 16), end_date=date(2026, 1, 30), consumption=150.0),
         ]
-        # Total consumption = 1000, total months = 5, average = 200
-        assert calculate_average_monthly_consumption(bills, "electricity") == 200.0
+        assert calculate_average_monthly_consumption(bills, "electricity") == pytest.approx(304.4, 0.01)
 
 
 class TestCalculateCostPerUnit:

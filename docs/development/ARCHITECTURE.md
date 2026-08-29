@@ -100,7 +100,7 @@ Minimal single-entry flow. No credentials required. User clicks Submit and a con
 
 **File:** `config_flow_handler/options_flow.py`
 
-Provides an in-UI way to add bills via **Settings → Devices & services → Home Ledger → Options**. The form has five fields: utility type, months covered, total cost, consumption, and an optional bill ID. On submit, a `Bill` is created, stored, and the coordinator is refreshed.
+Provides an in-UI way to add bills via **Settings → Devices & services → Home Ledger → Options**. The form has five fields: utility type, start date, end date, total cost, and consumption. On submit, a `Bill` is created, stored, and the coordinator is refreshed.
 
 This is an alternative to the `add_bill` service action — both write to the same store.
 

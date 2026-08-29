@@ -1,6 +1,7 @@
 """Data models for Home Ledger."""
 
 from dataclasses import dataclass
+from datetime import date
 from enum import StrEnum
 from numbers import Real
 from typing import Any, Self
@@ -26,7 +27,8 @@ class Bill:
     """A utility bill persisted in Home Assistant storage."""
 
     id: str
-    months: int
+    start_date: date
+    end_date: date
     total_cost: float
     consumption: float
     utility_type: UtilityType
@@ -34,13 +36,19 @@ class Bill:
     def __post_init__(self) -> None:
         """Validate and normalize bill fields."""
         bill_id = self._validate_id(self.id)
-        months = self._validate_months(self.months)
+        start_date = self._validate_date(self.start_date, "start_date")
+        end_date = self._validate_date(self.end_date, "end_date")
+        
+        if end_date <= start_date:
+            raise ValueError("end_date must be after start_date")
+            
         total_cost = self._validate_non_negative_number(self.total_cost, "total_cost")
         consumption = self._validate_non_negative_number(self.consumption, "consumption")
         utility_type = self._validate_utility_type(self.utility_type)
 
         object.__setattr__(self, "id", bill_id)
-        object.__setattr__(self, "months", months)
+        object.__setattr__(self, "start_date", start_date)
+        object.__setattr__(self, "end_date", end_date)
         object.__setattr__(self, "total_cost", total_cost)
         object.__setattr__(self, "consumption", consumption)
         object.__setattr__(self, "utility_type", utility_type)
@@ -50,11 +58,12 @@ class Bill:
         """Return the native consumption unit for the bill utility type."""
         return UTILITY_UNITS[self.utility_type]
 
-    def as_storage_dict(self) -> dict[str, str | int | float]:
+    def as_storage_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable representation for Home Assistant storage."""
         return {
             "id": self.id,
-            "months": self.months,
+            "start_date": self.start_date.isoformat(),
+            "end_date": self.end_date.isoformat(),
             "total_cost": self.total_cost,
             "consumption": self.consumption,
             "utility_type": self.utility_type.value,
@@ -65,7 +74,8 @@ class Bill:
         """Create a bill from Home Assistant storage data."""
         return cls(
             id=data["id"],
-            months=data["months"],
+            start_date=date.fromisoformat(data["start_date"]),
+            end_date=date.fromisoformat(data["end_date"]),
             total_cost=data["total_cost"],
             consumption=data["consumption"],
             utility_type=data["utility_type"],
@@ -78,9 +88,14 @@ class Bill:
         return value
 
     @staticmethod
-    def _validate_months(value: int) -> int:
-        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-            raise ValueError("months must be a positive integer")
+    def _validate_date(value: date | str, field_name: str) -> date:
+        if isinstance(value, str):
+            try:
+                return date.fromisoformat(value)
+            except ValueError as err:
+                raise ValueError(f"{field_name} must be in ISO format (YYYY-MM-DD)") from err
+        if not isinstance(value, date):
+            raise ValueError(f"{field_name} must be a date object or ISO string")
         return value
 
     @staticmethod

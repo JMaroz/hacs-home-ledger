@@ -9,7 +9,7 @@ from custom_components.home_ledger.calculations import (
     calculate_cost_per_unit,
     calculate_total_consumption,
     calculate_total_cost,
-    calculate_total_months,
+    calculate_total_days,
 )
 from custom_components.home_ledger.models import UtilityType
 
@@ -42,9 +42,9 @@ class HomeLedgerAggregates:
     electricity_cost_per_unit: float | None
     gas_cost_per_unit: float | None
     water_cost_per_unit: float | None
-    total_electricity_months: int
-    total_gas_months: int
-    total_water_months: int
+    total_electricity_days: int
+    total_gas_days: int
+    total_water_days: int
 
 
 @dataclass
@@ -86,7 +86,7 @@ class HomeLedgerData:
             electricity_cost_per_unit=calculate_cost_per_unit(bills, UtilityType.ELECTRICITY),
             gas_cost_per_unit=calculate_cost_per_unit(bills, UtilityType.GAS),
             water_cost_per_unit=calculate_cost_per_unit(bills, UtilityType.WATER),
-            total_electricity_months=calculate_total_months(bills, UtilityType.ELECTRICITY),
-            total_gas_months=calculate_total_months(bills, UtilityType.GAS),
-            total_water_months=calculate_total_months(bills, UtilityType.WATER),
+            total_electricity_days=calculate_total_days(bills, UtilityType.ELECTRICITY),
+            total_gas_days=calculate_total_days(bills, UtilityType.GAS),
+            total_water_days=calculate_total_days(bills, UtilityType.WATER),
         )

@@ -89,24 +89,24 @@ Each decision is documented with:
 
 ### Service-Action CRUD + Options Flow for Bill Entry
 
-**Date:** 2026-08-27 (Consolidation + Options Flow)
+**Date:** 2026-08-29 (Redesign)
 
-**Context:** Users manage bills by adding, updating, and deleting records. Service actions are powerful for automations but require knowing the `config_entry_id`. A UI option is useful for one-off entries.
+**Context:** Users manage bills by adding, updating, and deleting records. A simple "months" integer was too imprecise for real-world billing cycles (e.g., partial months).
 
-**Decision:** Expose four service actions (`add_bill`, `update_bill`, `delete_bill`, `list_bills`) registered in `async_setup()`, plus an options flow with a single `async_step_init` form for adding bills via the Settings UI.
+**Decision:** Replace the `months` field with a required date range (`start_date` and `end_date`). Retain both service actions and an options flow for entry.
 
 **Rationale:**
 
-- Service actions cover automations, scripts, and developer tools — the primary power-user path
-- Options flow provides a discoverable UI path for casual use without needing `config_entry_id`
-- Both write to the same `HomeLedgerStore`, so data is always consistent
-- Options flow is intentionally add-only (no update/delete) to keep the form simple
+- **Precision:** Using dates allows calculating an exact daily rate, which is the most accurate way to determine monthly averages.
+- **Flexibility:** Handles any billing cycle (weekly, monthly, bimonthly) without user calculation.
+- **Consistency:** Both UI and API paths use the same `Bill` model.
 
 **Consequences:**
 
-- Two entry points for bill creation: service action (with `config_entry_id`) and options flow (implicitly scoped to the entry)
-- `update_bill` and `delete_bill` remain service-action-only (no UI equivalent yet)
-- Options flow translations live in `en.json` under the `options` key
+- **Breaking Change:** Existing bill data is incompatible.
+- **Calculation Change:** Averages now use the formula `(total / days) * 30.44`.
+- **UX Change:** Users must now provide specific dates instead of a number of months.
+
 
 ---
 

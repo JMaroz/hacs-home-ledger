@@ -6,7 +6,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.home_ledger.const import DOMAIN
 from custom_components.home_ledger.service_actions import (
     ATTR_CONSUMPTION,
-    ATTR_MONTHS,
+    ATTR_START_DATE,
+    ATTR_END_DATE,
     ATTR_TOTAL_COST,
     ATTR_UTILITY_TYPE,
     SERVICE_ADD_BILL,
@@ -41,7 +42,8 @@ async def test_add_bill(
         {
             "config_entry_id": init_integration.entry_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 2,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 143.52,
             ATTR_CONSUMPTION: 412.0,
         },
@@ -52,7 +54,8 @@ async def test_add_bill(
     assert "bill" in result
     bill = result["bill"]
     assert bill[ATTR_UTILITY_TYPE] == "electricity"
-    assert bill[ATTR_MONTHS] == 2
+    assert bill[ATTR_START_DATE] == "2026-01-01"
+    assert bill[ATTR_END_DATE] == "2026-01-31"
     assert bill[ATTR_TOTAL_COST] == 143.52
     assert bill[ATTR_CONSUMPTION] == 412.0
     assert "id" in bill
@@ -71,7 +74,8 @@ async def test_add_bill_with_custom_id(
             "config_entry_id": init_integration.entry_id,
             "bill_id": custom_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 1,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 100.0,
             ATTR_CONSUMPTION: 250.0,
         },
@@ -94,7 +98,8 @@ async def test_add_multiple_bills(
         {
             "config_entry_id": init_integration.entry_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 2,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 100.0,
             ATTR_CONSUMPTION: 200.0,
         },
@@ -109,7 +114,8 @@ async def test_add_multiple_bills(
         {
             "config_entry_id": init_integration.entry_id,
             ATTR_UTILITY_TYPE: "gas",
-            ATTR_MONTHS: 3,
+            ATTR_START_DATE: "2026-02-01",
+            ATTR_END_DATE: "2026-02-28",
             ATTR_TOTAL_COST: 200.0,
             ATTR_CONSUMPTION: 150.0,
         },
@@ -143,7 +149,8 @@ async def test_update_bill(
         {
             "config_entry_id": init_integration.entry_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 2,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 100.0,
             ATTR_CONSUMPTION: 200.0,
         },
@@ -169,7 +176,8 @@ async def test_update_bill(
 
     assert update_result["bill"][ATTR_TOTAL_COST] == 150.0
     assert update_result["bill"][ATTR_CONSUMPTION] == 300.0
-    assert update_result["bill"][ATTR_MONTHS] == 2  # unchanged
+    assert update_result["bill"][ATTR_START_DATE] == "2026-01-01"  # unchanged
+    assert update_result["bill"][ATTR_END_DATE] == "2026-01-31"  # unchanged
 
 
 async def test_delete_bill(
@@ -184,7 +192,8 @@ async def test_delete_bill(
         {
             "config_entry_id": init_integration.entry_id,
             ATTR_UTILITY_TYPE: "electricity",
-            ATTR_MONTHS: 1,
+            ATTR_START_DATE: "2026-01-01",
+            ATTR_END_DATE: "2026-01-31",
             ATTR_TOTAL_COST: 50.0,
             ATTR_CONSUMPTION: 100.0,
         },

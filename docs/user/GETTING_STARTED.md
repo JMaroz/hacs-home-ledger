@@ -37,7 +37,7 @@ You have two ways to add bills:
 
 1. Go to **Settings → Devices & services → Home Ledger**
 2. Click **Options**
-3. Fill in the form: utility type, months, total cost, consumption
+3. Fill in the form: utility type, start date, end date, total cost, consumption
 4. Click **Submit**
 
 ### Option B: Service Action (recommended for automations)
@@ -48,7 +48,8 @@ Open **Developer Tools → Services** and call `home_ledger.add_bill`:
 service: home_ledger.add_bill
 data:
   utility_type: electricity
-  months: 2
+  start_date: "2026-01-01"
+  end_date: "2026-01-31"
   total_cost: 143.52
   consumption: 412.0
 ```
@@ -60,7 +61,8 @@ service: home_ledger.add_bill
 data:
   bill_id: electricity_jan_feb_2026
   utility_type: electricity
-  months: 2
+  start_date: "2026-01-01"
+  end_date: "2026-02-28"
   total_cost: 143.52
   consumption: 412.0
 ```

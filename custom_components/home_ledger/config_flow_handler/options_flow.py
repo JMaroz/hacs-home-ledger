@@ -2,13 +2,15 @@
 
 from typing import Any
 from uuid import uuid4
+from datetime import date
 
 import voluptuous as vol
 
 from custom_components.home_ledger.models import Bill, UtilityType
 from custom_components.home_ledger.service_actions import (
     ATTR_CONSUMPTION,
-    ATTR_MONTHS,
+    ATTR_START_DATE,
+    ATTR_END_DATE,
     ATTR_TOTAL_COST,
     ATTR_UTILITY_TYPE,
 )
@@ -19,7 +21,8 @@ UTILITY_TYPE_VALUES = [ut.value for ut in UtilityType]
 STEP_ADD_BILL_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_UTILITY_TYPE): vol.In(UTILITY_TYPE_VALUES),
-        vol.Required(ATTR_MONTHS): vol.All(vol.Coerce(int), vol.Range(min=1)),
+        vol.Required(ATTR_START_DATE): vol.All(vol.Coerce(str), lambda x: date.fromisoformat(x)),
+        vol.Required(ATTR_END_DATE): vol.All(vol.Coerce(str), lambda x: date.fromisoformat(x)),
         vol.Required(ATTR_TOTAL_COST): vol.All(vol.Coerce(float), vol.Range(min=0)),
         vol.Required(ATTR_CONSUMPTION): vol.All(vol.Coerce(float), vol.Range(min=0)),
         vol.Optional("bill_id"): str,
@@ -43,7 +46,8 @@ class HomeLedgerOptionsFlowHandler(config_entries.OptionsFlow):
             bill = Bill(
                 id=bill_id,
                 utility_type=user_input[ATTR_UTILITY_TYPE],
-                months=user_input[ATTR_MONTHS],
+                start_date=user_input[ATTR_START_DATE],
+                end_date=user_input[ATTR_END_DATE],
                 total_cost=user_input[ATTR_TOTAL_COST],
                 consumption=user_input[ATTR_CONSUMPTION],
             )

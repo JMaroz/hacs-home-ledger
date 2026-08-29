@@ -1,6 +1,7 @@
 """Tests for the Home Ledger config flow."""
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from datetime import date
 
 from custom_components.home_ledger.const import DOMAIN
 from homeassistant.config_entries import SOURCE_USER
@@ -52,7 +53,8 @@ async def test_options_flow_add_bill(
         result["flow_id"],
         {
             "utility_type": "electricity",
-            "months": 2,
+            "start_date": "2026-01-01",
+            "end_date": "2026-01-31",
             "total_cost": 143.52,
             "consumption": 412.0,
         },
@@ -64,7 +66,8 @@ async def test_options_flow_add_bill(
     bills = store.list_bills()
     assert len(bills) == 1
     assert bills[0].utility_type == "electricity"
-    assert bills[0].months == 2
+    assert bills[0].start_date == date(2026, 1, 1)
+    assert bills[0].end_date == date(2026, 1, 31)
     assert bills[0].total_cost == 143.52
     assert bills[0].consumption == 412.0
 
@@ -85,7 +88,8 @@ async def test_options_flow_add_bill_with_custom_id(
         result["flow_id"],
         {
             "utility_type": "gas",
-            "months": 1,
+            "start_date": "2026-01-01",
+            "end_date": "2026-01-31",
             "total_cost": 85.0,
             "consumption": 120.0,
             "bill_id": "gas_january",

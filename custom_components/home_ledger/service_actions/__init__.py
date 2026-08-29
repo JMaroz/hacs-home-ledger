@@ -24,7 +24,8 @@ SERVICE_UPDATE_BILL = "update_bill"
 ATTR_BILL_ID = "bill_id"
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ATTR_CONSUMPTION = "consumption"
-ATTR_MONTHS = "months"
+ATTR_START_DATE = "start_date"
+ATTR_END_DATE = "end_date"
 ATTR_TOTAL_COST = "total_cost"
 ATTR_UTILITY_TYPE = "utility_type"
 
@@ -38,7 +39,8 @@ ADD_BILL_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string,
         vol.Optional(ATTR_BILL_ID): cv.string,
         vol.Required(ATTR_UTILITY_TYPE): vol.In(UTILITY_TYPE_VALUES),
-        vol.Required(ATTR_MONTHS): POSITIVE_INT,
+        vol.Required(ATTR_START_DATE): cv.date,
+        vol.Required(ATTR_END_DATE): cv.date,
         vol.Required(ATTR_TOTAL_COST): NON_NEGATIVE_FLOAT,
         vol.Required(ATTR_CONSUMPTION): NON_NEGATIVE_FLOAT,
     },
@@ -49,7 +51,8 @@ UPDATE_BILL_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string,
         vol.Required(ATTR_BILL_ID): cv.string,
         vol.Optional(ATTR_UTILITY_TYPE): vol.In(UTILITY_TYPE_VALUES),
-        vol.Optional(ATTR_MONTHS): POSITIVE_INT,
+        vol.Optional(ATTR_START_DATE): cv.date,
+        vol.Optional(ATTR_END_DATE): cv.date,
         vol.Optional(ATTR_TOTAL_COST): NON_NEGATIVE_FLOAT,
         vol.Optional(ATTR_CONSUMPTION): NON_NEGATIVE_FLOAT,
     },
@@ -138,7 +141,8 @@ async def _async_handle_add_bill(hass: HomeAssistant, call: ServiceCall) -> Serv
     bill = Bill(
         id=bill_id,
         utility_type=call.data[ATTR_UTILITY_TYPE],
-        months=call.data[ATTR_MONTHS],
+        start_date=call.data[ATTR_START_DATE],
+        end_date=call.data[ATTR_END_DATE],
         total_cost=call.data[ATTR_TOTAL_COST],
         consumption=call.data[ATTR_CONSUMPTION],
     )
@@ -155,7 +159,7 @@ async def _async_handle_update_bill(hass: HomeAssistant, call: ServiceCall) -> S
     bill_id: str = call.data[ATTR_BILL_ID]
 
     changes: dict[str, object] = {}
-    for attr in (ATTR_UTILITY_TYPE, ATTR_MONTHS, ATTR_TOTAL_COST, ATTR_CONSUMPTION):
+    for attr in (ATTR_UTILITY_TYPE, ATTR_START_DATE, ATTR_END_DATE, ATTR_TOTAL_COST, ATTR_CONSUMPTION):
         if attr in call.data:
             changes[attr] = call.data[attr]
 
