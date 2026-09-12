@@ -130,3 +130,23 @@ list_bills:
   description: Return all utility bills stored in the ledger.
   fields:
     config_entry_id: *config_entry_id
+
+add_activity:
+  name: Add activity
+  description: Record a new activity or maintenance note.
+  fields:
+    config_entry_id: *config_entry_id
+    title:
+      name: Title
+      description: Summary of the activity.
+      required: true
+      example: "Solar panel cleaning"
+      selector:
+        text:
+    description:
+      name: Description
+      description: Detailed notes about the activity.
+      required: false
+      example: "Cleaned all 10 panels using distilled water."
+      selector:
+        text:

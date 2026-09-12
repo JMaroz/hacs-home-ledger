@@ -6,8 +6,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.home_ledger.const import DOMAIN
 from custom_components.home_ledger.service_actions import (
     ATTR_CONSUMPTION,
-    ATTR_START_DATE,
     ATTR_END_DATE,
+    ATTR_START_DATE,
     ATTR_TOTAL_COST,
     ATTR_UTILITY_TYPE,
     SERVICE_ADD_BILL,

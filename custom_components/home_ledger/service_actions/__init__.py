@@ -1,6 +1,8 @@
 """Service action registration for home_ledger."""
 
 from collections.abc import Callable, Coroutine
+from datetime import datetime
+from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -20,6 +22,7 @@ SERVICE_ADD_BILL = "add_bill"
 SERVICE_DELETE_BILL = "delete_bill"
 SERVICE_LIST_BILLS = "list_bills"
 SERVICE_UPDATE_BILL = "update_bill"
+SERVICE_ADD_ACTIVITY = "add_activity"
 
 ATTR_BILL_ID = "bill_id"
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
@@ -28,6 +31,8 @@ ATTR_START_DATE = "start_date"
 ATTR_END_DATE = "end_date"
 ATTR_TOTAL_COST = "total_cost"
 ATTR_UTILITY_TYPE = "utility_type"
+ATTR_ACTIVITY_TITLE = "title"
+ATTR_ACTIVITY_DESCRIPTION = "description"
 
 POSITIVE_INT = vol.All(vol.Coerce(int), vol.Range(min=1))
 NON_NEGATIVE_FLOAT = vol.All(vol.Coerce(float), vol.Range(min=0))
@@ -71,6 +76,14 @@ LIST_BILLS_SCHEMA = vol.Schema(
     },
 )
 
+ADD_ACTIVITY_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string,
+        vol.Required(ATTR_ACTIVITY_TITLE): cv.string,
+        vol.Optional(ATTR_ACTIVITY_DESCRIPTION): cv.string,
+    },
+)
+
 
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Register the integration's service actions once, at component level."""
@@ -87,6 +100,9 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     async def handle_list_bills(call: ServiceCall) -> ServiceResponse:
         return await _async_handle_list_bills(hass, call)
 
+    async def handle_add_activity(call: ServiceCall) -> ServiceResponse:
+        return await _async_handle_add_activity(hass, call)
+
     _async_register_service(hass, SERVICE_ADD_BILL, handle_add_bill, ADD_BILL_SCHEMA, SupportsResponse.OPTIONAL)
     _async_register_service(
         hass, SERVICE_UPDATE_BILL, handle_update_bill, UPDATE_BILL_SCHEMA, SupportsResponse.OPTIONAL
@@ -95,6 +111,9 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         hass, SERVICE_DELETE_BILL, handle_delete_bill, DELETE_BILL_SCHEMA, SupportsResponse.OPTIONAL
     )
     _async_register_service(hass, SERVICE_LIST_BILLS, handle_list_bills, LIST_BILLS_SCHEMA, SupportsResponse.ONLY)
+    _async_register_service(
+        hass, SERVICE_ADD_ACTIVITY, handle_add_activity, ADD_ACTIVITY_SCHEMA, SupportsResponse.OPTIONAL
+    )
 
 
 def _async_register_service(
@@ -199,3 +218,29 @@ async def _async_handle_list_bills(hass: HomeAssistant, call: ServiceCall) -> Se
     entry = _async_get_loaded_entry(hass, call.data[ATTR_CONFIG_ENTRY_ID])
     store = entry.runtime_data.bill_storage
     return {"bills": [bill.as_storage_dict() for bill in store.list_bills()]}
+
+
+async def _async_handle_add_activity(hass: HomeAssistant, call: ServiceCall) -> ServiceResponse:
+    """Record a new activity as a markdown file."""
+    _async_get_loaded_entry(hass, call.data[ATTR_CONFIG_ENTRY_ID])
+
+    title = call.data[ATTR_ACTIVITY_TITLE]
+    description = call.data.get(ATTR_ACTIVITY_DESCRIPTION, "")
+    today = datetime.now().date().isoformat()
+
+    # Use a sanitized title for the filename
+    safe_title = "".join(c for c in title if c.isalnum() or c in (" ", "_", "-")).rstrip()
+    filename = f"{today}_{safe_title.replace(' ', '_').lower()}.md"
+
+    # Path: config/home_ledger/activities/
+    activities_dir = Path(hass.config.path("home_ledger/activities"))
+    activities_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = activities_dir / filename
+
+    content = f"# {title}\nDate: {today}\n\n{description}\n"
+
+    # Write file using a thread (os.write is blocking)
+    await hass.async_add_executor_job(lambda: file_path.write_text(content, encoding="utf-8"))
+
+    return {"file_path": str(file_path)}

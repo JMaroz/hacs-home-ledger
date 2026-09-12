@@ -1,7 +1,8 @@
 """Tests for the Home Ledger config flow."""
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 from datetime import date
+
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.home_ledger.const import DOMAIN
 from homeassistant.config_entries import SOURCE_USER

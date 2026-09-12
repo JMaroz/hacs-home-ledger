@@ -38,10 +38,10 @@ class Bill:
         bill_id = self._validate_id(self.id)
         start_date = self._validate_date(self.start_date, "start_date")
         end_date = self._validate_date(self.end_date, "end_date")
-        
+
         if end_date <= start_date:
             raise ValueError("end_date must be after start_date")
-            
+
         total_cost = self._validate_non_negative_number(self.total_cost, "total_cost")
         consumption = self._validate_non_negative_number(self.consumption, "consumption")
         utility_type = self._validate_utility_type(self.utility_type)
@@ -95,7 +95,7 @@ class Bill:
             except ValueError as err:
                 raise ValueError(f"{field_name} must be in ISO format (YYYY-MM-DD)") from err
         if not isinstance(value, date):
-            raise ValueError(f"{field_name} must be a date object or ISO string")
+            raise TypeError(f"{field_name} must be a date object or ISO string")
         return value
 
     @staticmethod

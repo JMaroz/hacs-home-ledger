@@ -1,20 +1,32 @@
 """Options flow for home_ledger."""
 
+from datetime import date
 from typing import Any
 from uuid import uuid4
-from datetime import date
 
 import voluptuous as vol
 
+from custom_components.home_ledger.const import (
+    CONF_PV_INCENTIVES,
+    CONF_PV_INSTALLATION_DATE,
+    CONF_PV_INVESTMENT,
+    CONF_SENSOR_BATTERY_ENERGY,
+    CONF_SENSOR_GRID_EXPORT,
+    CONF_SENSOR_HOUSE_CONSUMPTION,
+    CONF_SENSOR_PV_PRODUCTION,
+)
 from custom_components.home_ledger.models import Bill, UtilityType
 from custom_components.home_ledger.service_actions import (
     ATTR_CONSUMPTION,
-    ATTR_START_DATE,
     ATTR_END_DATE,
+    ATTR_START_DATE,
     ATTR_TOTAL_COST,
     ATTR_UTILITY_TYPE,
 )
 from homeassistant import config_entries
+from homeassistant.helpers import selector
+
+UTILITY_TYPE_VALUES = [ut.value for ut in UtilityType]
 
 UTILITY_TYPE_VALUES = [ut.value for ut in UtilityType]
 
@@ -29,20 +41,58 @@ STEP_ADD_BILL_SCHEMA = vol.Schema(
     },
 )
 
+STEP_PV_ROI_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_PV_INVESTMENT): selector.NumberSelector(
+            selector.NumberSelectorConfig(min=0, mode=selector.NumberSelectorMode.BOX),
+        ),
+        vol.Optional(CONF_PV_INCENTIVES, default=0.0): selector.NumberSelector(
+            selector.NumberSelectorConfig(min=0, mode=selector.NumberSelectorMode.BOX),
+        ),
+        vol.Required(CONF_PV_INSTALLATION_DATE): selector.DateSelector(),
+        vol.Required(CONF_SENSOR_PV_PRODUCTION): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor"),
+        ),
+        vol.Required(CONF_SENSOR_HOUSE_CONSUMPTION): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor"),
+        ),
+        vol.Optional(CONF_SENSOR_BATTERY_ENERGY): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor"),
+        ),
+        vol.Optional(CONF_SENSOR_GRID_EXPORT): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor"),
+        ),
+    },
+)
+
 
 class HomeLedgerOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options flow for Home Ledger — add a bill."""
+    """Handle options flow for Home Ledger."""
 
     async def async_step_init(
         self,
         user_input: dict[str, Any] | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Show the add-bill form."""
+        """Show the main options menu."""
+        if user_input is not None:
+            return await self.async_step_add_bill(user_input)
+
+        return self.async_show_menu(
+            step_id="init",
+            menu_options=[
+                ("add_bill", "Add a new utility bill"),
+                ("pv_roi", "Configure Photovoltaic ROI"),
+            ],
+        )
+
+    async def async_step_add_bill(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Handle adding a new bill."""
         if user_input is not None:
             store = self.config_entry.runtime_data.bill_storage
-
             bill_id = user_input.get("bill_id") or uuid4().hex
-
             bill = Bill(
                 id=bill_id,
                 utility_type=user_input[ATTR_UTILITY_TYPE],
@@ -51,13 +101,24 @@ class HomeLedgerOptionsFlowHandler(config_entries.OptionsFlow):
                 total_cost=user_input[ATTR_TOTAL_COST],
                 consumption=user_input[ATTR_CONSUMPTION],
             )
-
             await store.add_bill(bill)
             await self.config_entry.runtime_data.coordinator.async_refresh_bills()
-
             return self.async_create_entry(title="", data={})
 
         return self.async_show_form(
-            step_id="init",
+            step_id="add_bill",
             data_schema=STEP_ADD_BILL_SCHEMA,
+        )
+
+    async def async_step_pv_roi(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Handle PV ROI configuration."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data={})
+
+        return self.async_show_form(
+            step_id="pv_roi",
+            data_schema=STEP_PV_ROI_SCHEMA,
         )
