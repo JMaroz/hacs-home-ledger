@@ -24,6 +24,18 @@ def _get_attr(data: Any, key: str) -> StateType:
     return getattr(data, key, None)
 
 
+def _monthly_costs_attr(data: Any, utility_type: str) -> dict[str, float] | None:
+    """Return monthly costs as extra attributes."""
+    attr_name = f"{utility_type}_monthly_costs"
+    return getattr(data, attr_name, None)
+
+
+def _monthly_consumption_attr(data: Any, utility_type: str) -> dict[str, float] | None:
+    """Return monthly consumption as extra attributes."""
+    attr_name = f"{utility_type}_monthly_consumption"
+    return getattr(data, attr_name, None)
+
+
 COST_DESCRIPTIONS: tuple[HomeLedgerSensorEntityDescription, ...] = (
     *(
         HomeLedgerSensorEntityDescription(
@@ -34,6 +46,7 @@ COST_DESCRIPTIONS: tuple[HomeLedgerSensorEntityDescription, ...] = (
             state_class=SensorStateClass.TOTAL,
             suggested_display_precision=2,
             value_fn=lambda data, key=f"total_{utility_type}_cost": _get_attr(data, key),
+            extra_attributes_fn=lambda data, ut=utility_type: _monthly_costs_attr(data, ut),
         )
         for utility_type in UTILITY_TYPES
     ),
@@ -60,6 +73,7 @@ CONSUMPTION_DESCRIPTIONS: tuple[HomeLedgerSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         suggested_display_precision=2,
         value_fn=lambda data: _get_attr(data, "total_electricity_consumption"),
+        extra_attributes_fn=lambda data: _monthly_consumption_attr(data, "electricity"),
     ),
     *(
         HomeLedgerSensorEntityDescription(
@@ -70,6 +84,7 @@ CONSUMPTION_DESCRIPTIONS: tuple[HomeLedgerSensorEntityDescription, ...] = (
             state_class=SensorStateClass.TOTAL,
             suggested_display_precision=2,
             value_fn=lambda data, key=f"total_{utility_type}_consumption": _get_attr(data, key),
+            extra_attributes_fn=lambda data, ut=utility_type: _monthly_consumption_attr(data, ut),
         )
         for utility_type in ("gas", "water")
     ),

@@ -68,7 +68,7 @@ ENTITY_DESCRIPTIONS = (
     PVROISensorEntityDescription(
         key="break_even_date",
         translation_key="pv_break_even_date",
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DATE,
         state_class=None,
     ),
 )

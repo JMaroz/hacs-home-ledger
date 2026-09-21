@@ -9,13 +9,23 @@ from custom_components.home_ledger.calculations import (
     calculate_average_monthly_consumption,
     calculate_average_monthly_cost,
     calculate_cost_per_unit,
+    calculate_monthly_consumption,
+    calculate_monthly_costs,
     calculate_pv_savings,
     calculate_roi_payback,
     calculate_total_consumption,
     calculate_total_cost,
     calculate_total_days,
 )
-from custom_components.home_ledger.const import CONF_PV_INCENTIVES, CONF_PV_INSTALLATION_DATE, CONF_PV_INVESTMENT
+from custom_components.home_ledger.const import (
+    CONF_PV_INCENTIVES,
+    CONF_PV_INCENTIVES_TYPE,
+    CONF_PV_INCENTIVES_YEARS,
+    CONF_PV_INSTALLATION_DATE,
+    CONF_PV_INVESTMENT,
+    INCENTIVES_TYPE_DISTRIBUTED,
+    INCENTIVES_TYPE_LUMP_SUM,
+)
 from custom_components.home_ledger.models import UtilityType
 
 if TYPE_CHECKING:
@@ -47,6 +57,12 @@ class HomeLedgerAggregates:
     electricity_cost_per_unit: float | None
     gas_cost_per_unit: float | None
     water_cost_per_unit: float | None
+    electricity_monthly_costs: dict[str, float] | None
+    gas_monthly_costs: dict[str, float] | None
+    water_monthly_costs: dict[str, float] | None
+    electricity_monthly_consumption: dict[str, float] | None
+    gas_monthly_consumption: dict[str, float] | None
+    water_monthly_consumption: dict[str, float] | None
     total_electricity_days: int
     total_gas_days: int
     total_water_days: int
@@ -92,6 +108,14 @@ class HomeLedgerData:
         total_gas_consumption = calculate_total_consumption(bills, UtilityType.GAS)
         total_water_consumption = calculate_total_consumption(bills, UtilityType.WATER)
 
+        electricity_monthly_costs = calculate_monthly_costs(bills, UtilityType.ELECTRICITY)
+        gas_monthly_costs = calculate_monthly_costs(bills, UtilityType.GAS)
+        water_monthly_costs = calculate_monthly_costs(bills, UtilityType.WATER)
+
+        electricity_monthly_consumption = calculate_monthly_consumption(bills, UtilityType.ELECTRICITY)
+        gas_monthly_consumption = calculate_monthly_consumption(bills, UtilityType.GAS)
+        water_monthly_consumption = calculate_monthly_consumption(bills, UtilityType.WATER)
+
         return HomeLedgerAggregates(
             total_electricity_cost=total_electricity_cost,
             total_gas_cost=total_gas_cost,
@@ -111,6 +135,12 @@ class HomeLedgerData:
             electricity_cost_per_unit=calculate_cost_per_unit(bills, UtilityType.ELECTRICITY),
             gas_cost_per_unit=calculate_cost_per_unit(bills, UtilityType.GAS),
             water_cost_per_unit=calculate_cost_per_unit(bills, UtilityType.WATER),
+            electricity_monthly_costs=electricity_monthly_costs or None,
+            gas_monthly_costs=gas_monthly_costs or None,
+            water_monthly_costs=water_monthly_costs or None,
+            electricity_monthly_consumption=electricity_monthly_consumption or None,
+            gas_monthly_consumption=gas_monthly_consumption or None,
+            water_monthly_consumption=water_monthly_consumption or None,
             total_electricity_days=calculate_total_days(bills, UtilityType.ELECTRICITY),
             total_gas_days=calculate_total_days(bills, UtilityType.GAS),
             total_water_days=calculate_total_days(bills, UtilityType.WATER),
@@ -130,8 +160,18 @@ class HomeLedgerData:
             return None
 
         incentives = options.get(CONF_PV_INCENTIVES, 0.0)
-        net_investment = max(0.0, investment - incentives)
+        incentives_type = options.get(CONF_PV_INCENTIVES_TYPE, INCENTIVES_TYPE_LUMP_SUM)
+        incentives_years = options.get(CONF_PV_INCENTIVES_YEARS, 10)
+
         install_date = options.get(CONF_PV_INSTALLATION_DATE)
+        if isinstance(install_date, str):
+            try:
+                install_date = date.fromisoformat(install_date)
+            except ValueError:
+                return None
+
+        if install_date is not None and not isinstance(install_date, date):
+            return None
 
         cost_per_unit = self.coordinator.data.electricity_cost_per_unit
         if cost_per_unit is None:
@@ -163,11 +203,22 @@ class HomeLedgerData:
             )
 
         annual_production = (pv_production / days_since_install) * 365.25
-        annual_savings = calculate_pv_savings(
+        annual_pv_savings = calculate_pv_savings(
             production=annual_production,
             cost_per_unit=cost_per_unit,
             grid_export=None,  # Simplify for annual projection
         )
+
+        # Handle incentives based on type
+        if incentives_type == INCENTIVES_TYPE_DISTRIBUTED:
+            # Distributed incentives: add annual incentive to savings
+            annual_incentive = incentives / incentives_years if incentives_years > 0 else 0
+            annual_savings = annual_pv_savings + annual_incentive
+            net_investment = investment  # Don't reduce initial investment
+        else:  # INCENTIVES_TYPE_LUMP_SUM
+            # Lump sum incentives: reduce initial investment
+            annual_savings = annual_pv_savings
+            net_investment = max(0.0, investment - incentives)
 
         payback_years = calculate_roi_payback(net_investment, annual_savings)
         roi_percentage = (annual_savings / net_investment * 100) if net_investment > 0 else None

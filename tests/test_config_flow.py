@@ -47,11 +47,19 @@ async def test_options_flow_add_bill(
     await hass.async_block_till_done()
 
     result = await hass.config_entries.options.async_init(config_entry.entry_id)
-    assert result["type"] == FlowResultType.FORM
+    assert result["type"] == FlowResultType.MENU
     assert result["step_id"] == "init"
+    assert result["menu_options"] == ["add_bill", "pv_roi"]
 
     result2 = await hass.config_entries.options.async_configure(
         result["flow_id"],
+        {"next_step_id": "add_bill"},
+    )
+    assert result2["type"] == FlowResultType.FORM
+    assert result2["step_id"] == "add_bill"
+
+    result3 = await hass.config_entries.options.async_configure(
+        result2["flow_id"],
         {
             "utility_type": "electricity",
             "start_date": "2026-01-01",
@@ -60,7 +68,7 @@ async def test_options_flow_add_bill(
             "consumption": 412.0,
         },
     )
-    assert result2["type"] == FlowResultType.CREATE_ENTRY
+    assert result3["type"] == FlowResultType.CREATE_ENTRY
 
     # Verify bill was stored
     store = config_entry.runtime_data.bill_storage
@@ -83,6 +91,12 @@ async def test_options_flow_add_bill_with_custom_id(
     await hass.async_block_till_done()
 
     result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    assert result["type"] == FlowResultType.MENU
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "add_bill"},
+    )
     assert result["type"] == FlowResultType.FORM
 
     result2 = await hass.config_entries.options.async_configure(
@@ -104,3 +118,34 @@ async def test_options_flow_add_bill_with_custom_id(
     assert len(bills) == 1
     assert bills[0].id == "gas_january"
     assert bills[0].utility_type == "gas"
+
+
+async def test_options_flow_pv_roi_persists_options(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+) -> None:
+    """Test that PV ROI settings are saved as config entry options."""
+    config_entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "pv_roi"},
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "pv_roi"
+
+    user_input = {
+        "pv_investment": 10000.0,
+        "pv_incentives": 1000.0,
+        "pv_incentives_type": "lump_sum",
+        "pv_incentives_years": 10,
+        "pv_installation_date": "2024-01-01",
+        "sensor_pv_production": "sensor.pv_production",
+        "sensor_house_consumption": "sensor.house_consumption",
+    }
+    result = await hass.config_entries.options.async_configure(result["flow_id"], user_input)
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"] == user_input

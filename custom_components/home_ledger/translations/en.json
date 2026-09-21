@@ -2,6 +2,7 @@
   "config": {
     "step": {
       "user": {
+        "title": "Set up Home Ledger",
         "description": "Set up Home Ledger to track your household utility costs and consumption.",
         "data": {},
         "data_description": {}
@@ -14,23 +15,59 @@
   },
   "options": {
     "step": {
-      "init": {
+      "add_bill": {
         "title": "Add a bill",
         "description": "Enter the details of your utility bill.",
         "data": {
           "utility_type": "Utility type",
-          "months": "Months covered",
+          "start_date": "Start date",
+          "end_date": "End date",
           "total_cost": "Total cost (EUR)",
           "consumption": "Consumption",
           "bill_id": "Bill ID (optional)"
         },
         "data_description": {
+          "utility_type": "Choose the type of utility shown on the bill.",
+          "start_date": "First day included in the billing period.",
+          "end_date": "Last day included in the billing period.",
+          "total_cost": "Total amount charged for the billing period.",
+          "consumption": "Total energy, gas, or water used during the billing period.",
           "bill_id": "A custom identifier for this bill. One is generated automatically when left empty."
+        }
+      },
+      "init": {
+        "title": "Home Ledger",
+        "menu_options": {
+          "add_bill": "Add a new utility bill",
+          "pv_roi": "Configure Photovoltaic ROI"
+        }
+      },
+      "pv_roi": {
+        "title": "Configure Photovoltaic ROI",
+        "description": "Enter the details of your PV installation to calculate the return on investment.",
+        "data": {
+          "pv_investment": "Total investment cost (EUR)",
+          "pv_incentives": "Total incentives received (EUR)",
+          "pv_installation_date": "Installation date",
+          "sensor_pv_production": "PV production sensor",
+          "sensor_house_consumption": "House consumption sensor",
+          "sensor_battery_energy": "Battery energy sensor (optional)",
+          "sensor_grid_export": "Grid export sensor (optional)"
+        },
+        "data_description": {
+          "pv_investment": "Total cost paid for the photovoltaic installation.",
+          "pv_incentives": "Grants or incentives that reduce the installation cost.",
+          "pv_installation_date": "Date when the photovoltaic installation started operating.",
+          "sensor_pv_production": "Sensor that reports cumulative photovoltaic production.",
+          "sensor_house_consumption": "Sensor that reports cumulative household consumption.",
+          "sensor_battery_energy": "Optional sensor that reports energy stored in the battery.",
+          "sensor_grid_export": "Optional sensor that reports energy exported to the grid."
         }
       }
     },
-    "error": {},
-    "abort": {}
+    "error": {
+      "invalid_dates": "End date must be after start date"
+    }
   },
   "exceptions": {
     "entry_not_found": {
@@ -92,6 +129,24 @@
       },
       "water_cost_per_unit": {
         "name": "Water cost per m³"
+      },
+      "pv_total_savings": {
+        "name": "Total photovoltaic savings"
+      },
+      "pv_roi_percentage": {
+        "name": "Photovoltaic return on investment"
+      },
+      "pv_payback_years": {
+        "name": "Photovoltaic payback period"
+      },
+      "pv_break_even_date": {
+        "name": "Photovoltaic break-even date"
+      },
+      "last_activity_title": {
+        "name": "Latest activity"
+      },
+      "total_activities": {
+        "name": "Total activities"
       }
     }
   },
@@ -112,9 +167,13 @@
           "name": "Utility type",
           "description": "Type of utility: electricity, gas, or water."
         },
-        "months": {
-          "name": "Months",
-          "description": "Number of months covered by this bill."
+        "start_date": {
+          "name": "Start date",
+          "description": "First day covered by this bill."
+        },
+        "end_date": {
+          "name": "End date",
+          "description": "Last day covered by this bill."
         },
         "total_cost": {
           "name": "Total cost",
@@ -142,9 +201,13 @@
           "name": "Utility type",
           "description": "New utility type."
         },
-        "months": {
-          "name": "Months",
-          "description": "New number of months."
+        "start_date": {
+          "name": "Start date",
+          "description": "New first day covered by this bill."
+        },
+        "end_date": {
+          "name": "End date",
+          "description": "New last day covered by this bill."
         },
         "total_cost": {
           "name": "Total cost",
@@ -177,6 +240,24 @@
         "config_entry_id": {
           "name": "Integration entry",
           "description": "The Home Ledger configuration entry to use."
+        }
+      }
+    },
+    "add_activity": {
+      "name": "Add activity",
+      "description": "Record a new activity or maintenance note.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Integration entry",
+          "description": "The Home Ledger configuration entry to use."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Summary of the activity."
+        },
+        "description": {
+          "name": "Description",
+          "description": "Detailed notes about the activity."
         }
       }
     }

@@ -70,7 +70,7 @@ echo ""
 
 run_hook "test" "pre"
 echo ""
-pytest "${COVERAGE_ARGS[@]}" "${PYTEST_ARGS[@]}"
+pytest "${COVERAGE_ARGS[@]:+"${COVERAGE_ARGS[@]}"}" "${PYTEST_ARGS[@]:+"${PYTEST_ARGS[@]}"}"
 
 run_hook "test" "post"
 

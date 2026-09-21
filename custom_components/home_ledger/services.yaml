@@ -31,16 +31,20 @@ add_bill:
             - electricity
             - gas
             - water
-    months:
-      name: Months
-      description: Number of months covered by this bill.
+    start_date:
+      name: Start date
+      description: First day covered by this bill.
       required: true
-      example: 2
+      example: "2026-01-01"
       selector:
-        number:
-          min: 1
-          mode: box
-          step: 1
+        date:
+    end_date:
+      name: End date
+      description: Last day covered by this bill.
+      required: true
+      example: "2026-01-31"
+      selector:
+        date:
     total_cost:
       name: Total cost
       description: Total cost of the bill in EUR.
@@ -84,15 +88,18 @@ update_bill:
             - electricity
             - gas
             - water
-    months:
-      name: Months
-      description: New number of months.
-      example: 2
+    start_date:
+      name: Start date
+      description: New first day covered by this bill.
+      example: "2026-01-01"
       selector:
-        number:
-          min: 1
-          mode: box
-          step: 1
+        date:
+    end_date:
+      name: End date
+      description: New last day covered by this bill.
+      example: "2026-01-31"
+      selector:
+        date:
     total_cost:
       name: Total cost
       description: New total cost in EUR.
