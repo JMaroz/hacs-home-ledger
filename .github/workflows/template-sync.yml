@@ -27,7 +27,7 @@ jobs:
   template-sync:
     name: Sync from template
     # Skip when running inside the template repository itself
-    if: github.repository != 'andmaroz89/hacs-home-ledger'
+    if: github.repository != 'jpawlowski/hacs.integration_blueprint'
     runs-on: ubuntu-latest
     env:
       TEMPLATE_SYNC_TARGET_PAT: ${{ secrets.TEMPLATE_SYNC_TARGET_PAT }}
@@ -71,7 +71,7 @@ jobs:
           # Needed only for changes in .github/workflows/*.yml.
           # Falls back to github.token for normal syncs.
           target_gh_token: ${{ env.TEMPLATE_SYNC_TARGET_PAT || github.token }}
-          source_repo_path: andmaroz89/hacs-home-ledger
+          source_repo_path: jpawlowski/hacs.integration_blueprint
           upstream_branch: main
           template_sync_ignore_file_path: .templatesyncignore.runtime
           pr_labels: template-sync
