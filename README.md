@@ -182,7 +182,7 @@ The integration correctly calculates averages using total months, not just the n
 
 ### Example Calculation
 
-```
+```text
 Bills:
 - Electricity 2 months → €100
 - Electricity 2 months → €120
