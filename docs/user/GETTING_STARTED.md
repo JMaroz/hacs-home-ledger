@@ -71,13 +71,13 @@ data:
 
 After adding bills, 16 sensor entities appear under the Home Ledger device:
 
-| Category | Sensors |
-|---|---|
-| **Total cost** | `sensor.total_electricity_cost`, `sensor.total_gas_cost`, `sensor.total_water_cost`, `sensor.total_utility_cost` |
-| **Total consumption** | `sensor.total_electricity_consumption`, `sensor.total_gas_consumption`, `sensor.total_water_consumption` |
-| **Average monthly cost** | `sensor.electricity_average_monthly_cost`, `sensor.gas_average_monthly_cost`, `sensor.water_average_monthly_cost` |
+| Category                        | Sensors                                                                                                                                |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Total cost**                  | `sensor.total_electricity_cost`, `sensor.total_gas_cost`, `sensor.total_water_cost`, `sensor.total_utility_cost`                       |
+| **Total consumption**           | `sensor.total_electricity_consumption`, `sensor.total_gas_consumption`, `sensor.total_water_consumption`                               |
+| **Average monthly cost**        | `sensor.electricity_average_monthly_cost`, `sensor.gas_average_monthly_cost`, `sensor.water_average_monthly_cost`                      |
 | **Average monthly consumption** | `sensor.electricity_average_monthly_consumption`, `sensor.gas_average_monthly_consumption`, `sensor.water_average_monthly_consumption` |
-| **Cost per unit** | `sensor.electricity_cost_per_unit`, `sensor.gas_cost_per_unit`, `sensor.water_cost_per_unit` |
+| **Cost per unit**               | `sensor.electricity_cost_per_unit`, `sensor.gas_cost_per_unit`, `sensor.water_cost_per_unit`                                           |
 
 ## Your First Dashboard Card
 

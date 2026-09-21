@@ -71,6 +71,7 @@ Aggregates are recalculated on demand via `async_refresh_bills()`, which calls `
 16 sensor descriptions defined declaratively as tuples. Each has a `value_fn` that reads one field from `HomeLedgerAggregates`. The entity class dispatches to `value_fn` in its `native_value` property.
 
 Categories:
+
 - **Total cost** — cumulative EUR per utility + combined
 - **Total consumption** — cumulative kWh / m³ per utility
 - **Average monthly cost** — EUR/month across all bills of that utility

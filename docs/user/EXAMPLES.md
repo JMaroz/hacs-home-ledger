@@ -60,6 +60,7 @@ action:
 ### Blueprints
 
 Home Ledger provides ready-to-use automation blueprints in `blueprints/automation/home_ledger/`:
+
 - **[Monthly Bill Reminder](../../blueprints/automation/home_ledger/monthly_bill_reminder.yaml)**: Configurable recurring reminder.
 - **[High Cost Alert](../../blueprints/automation/home_ledger/high_cost_alert.yaml)**: Threshold-based alert.
 

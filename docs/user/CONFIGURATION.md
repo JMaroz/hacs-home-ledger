@@ -6,13 +6,13 @@ Home Ledger has no configuration options. Bills are added via the Settings UI (o
 
 Go to **Settings → Devices & services → Home Ledger → Options** to add bills through a form.
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `utility_type` | select | yes | `electricity`, `gas`, or `water` |
-| `months` | integer | yes | Number of months the bill covers (≥ 1) |
-| `total_cost` | float | yes | Total cost in EUR (≥ 0) |
-| `consumption` | float | yes | Total consumption in the unit for that utility (≥ 0) |
-| `bill_id` | string | no | Custom ID. Auto-generated if omitted |
+| Field          | Type    | Required | Description                                          |
+| -------------- | ------- | -------- | ---------------------------------------------------- |
+| `utility_type` | select  | yes      | `electricity`, `gas`, or `water`                     |
+| `months`       | integer | yes      | Number of months the bill covers (≥ 1)               |
+| `total_cost`   | float   | yes      | Total cost in EUR (≥ 0)                              |
+| `consumption`  | float   | yes      | Total consumption in the unit for that utility (≥ 0) |
+| `bill_id`      | string  | no       | Custom ID. Auto-generated if omitted                 |
 
 The options flow is add-only. To update or delete bills, use the service actions below.
 
@@ -22,23 +22,23 @@ The options flow is add-only. To update or delete bills, use the service actions
 
 Create a new bill.
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `config_entry_id` | string | yes | The config entry ID (from Developer Tools → States) |
-| `utility_type` | string | yes | `electricity`, `gas`, or `water` |
-| `start_date` | string | yes | Start date in ISO format (YYYY-MM-DD) |
-| `end_date` | string | yes | End date in ISO format (YYYY-MM-DD) |
-| `total_cost` | float | yes | Total cost in EUR (≥ 0) |
-| `consumption` | float | yes | Total consumption in the unit for that utility (≥ 0) |
-| `bill_id` | string | no | Custom ID. Auto-generated if omitted |
+| Field             | Type   | Required | Description                                          |
+| ----------------- | ------ | -------- | ---------------------------------------------------- |
+| `config_entry_id` | string | yes      | The config entry ID (from Developer Tools → States)  |
+| `utility_type`    | string | yes      | `electricity`, `gas`, or `water`                     |
+| `start_date`      | string | yes      | Start date in ISO format (YYYY-MM-DD)                |
+| `end_date`        | string | yes      | End date in ISO format (YYYY-MM-DD)                  |
+| `total_cost`      | float  | yes      | Total cost in EUR (≥ 0)                              |
+| `consumption`     | float  | yes      | Total consumption in the unit for that utility (≥ 0) |
+| `bill_id`         | string | no       | Custom ID. Auto-generated if omitted                 |
 
 **Unit of measurement by utility type:**
 
-| Utility | Unit |
-|---|---|
-| electricity | kWh |
-| gas | m³ |
-| water | m³ |
+| Utility     | Unit |
+| ----------- | ---- |
+| electricity | kWh  |
+| gas         | m³   |
+| water       | m³   |
 
 **Response:** returns the stored bill with its `id`.
 
@@ -57,15 +57,15 @@ data:
 
 Update an existing bill. Only the fields you provide are changed.
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `config_entry_id` | string | yes | The config entry ID |
-| `bill_id` | string | yes | The bill to update |
-| `utility_type` | string | no | New utility type |
-| `start_date` | string | no | New start date (YYYY-MM-DD) |
-| `end_date` | string | no | New end date (YYYY-MM-DD) |
-| `total_cost` | float | no | New total cost |
-| `consumption` | float | no | New consumption |
+| Field             | Type   | Required | Description                 |
+| ----------------- | ------ | -------- | --------------------------- |
+| `config_entry_id` | string | yes      | The config entry ID         |
+| `bill_id`         | string | yes      | The bill to update          |
+| `utility_type`    | string | no       | New utility type            |
+| `start_date`      | string | no       | New start date (YYYY-MM-DD) |
+| `end_date`        | string | no       | New end date (YYYY-MM-DD)   |
+| `total_cost`      | float  | no       | New total cost              |
+| `consumption`     | float  | no       | New consumption             |
 
 **Response:** returns the updated bill.
 
@@ -81,10 +81,10 @@ data:
 
 Remove a bill.
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `config_entry_id` | string | yes | The config entry ID |
-| `bill_id` | string | yes | The bill to delete |
+| Field             | Type   | Required | Description         |
+| ----------------- | ------ | -------- | ------------------- |
+| `config_entry_id` | string | yes      | The config entry ID |
+| `bill_id`         | string | yes      | The bill to delete  |
 
 **Response:** returns `{"bill_id": "..."}`.
 
@@ -99,9 +99,9 @@ data:
 
 Return all stored bills.
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `config_entry_id` | string | yes | The config entry ID |
+| Field             | Type   | Required | Description         |
+| ----------------- | ------ | -------- | ------------------- |
+| `config_entry_id` | string | yes      | The config entry ID |
 
 **Response:** returns `{"bills": [...]}`.
 
@@ -116,9 +116,10 @@ data:
 The `start_date` and `end_date` fields define the exact period covered by the bill.
 
 This affects the **average monthly** calculations:
+
 1. Total days are summed across all bills for a utility.
 2. Daily average cost = Total Cost / Total Days.
-3. Monthly average cost = Daily Average * 30.44.
+3. Monthly average cost = Daily Average \* 30.44.
 
 Example: A bill from 2026-01-01 to 2026-01-30 (30 days) with a cost of 300 EUR contributes a daily cost of 10 EUR, resulting in a monthly average of 304.40 EUR.
 

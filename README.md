@@ -20,11 +20,11 @@ Home Ledger is a Home Assistant custom integration for tracking household utilit
 
 ## Supported Utilities
 
-| Utility | Unit | Description |
-|---------|------|-------------|
-| Electricity | kWh | Track electricity consumption and costs |
-| Gas | m³ | Track gas consumption and costs |
-| Water | m³ | Track water consumption and costs |
+| Utility     | Unit | Description                             |
+| ----------- | ---- | --------------------------------------- |
+| Electricity | kWh  | Track electricity consumption and costs |
+| Gas         | m³   | Track gas consumption and costs         |
+| Water       | m³   | Track water consumption and costs       |
 
 ## Installation
 
@@ -69,14 +69,14 @@ data:
 
 #### Parameters
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `config_entry_id` | Yes | The Home Ledger config entry ID |
-| `utility_type` | Yes | `electricity`, `gas`, or `water` |
-| `months` | Yes | Number of months covered (1, 2, 3, 6, 12, etc.) |
-| `total_cost` | Yes | Total cost in EUR |
-| `consumption` | Yes | Total consumption value |
-| `bill_id` | No | Custom ID (auto-generated if omitted) |
+| Parameter         | Required | Description                                     |
+| ----------------- | -------- | ----------------------------------------------- |
+| `config_entry_id` | Yes      | The Home Ledger config entry ID                 |
+| `utility_type`    | Yes      | `electricity`, `gas`, or `water`                |
+| `months`          | Yes      | Number of months covered (1, 2, 3, 6, 12, etc.) |
+| `total_cost`      | Yes      | Total cost in EUR                               |
+| `consumption`     | Yes      | Total consumption value                         |
+| `bill_id`         | No       | Custom ID (auto-generated if omitted)           |
 
 ### Updating Bills
 
@@ -109,39 +109,39 @@ data:
 
 ### Cost Sensors
 
-| Sensor | Unit | Description |
-|--------|------|-------------|
-| Total electricity cost | € | Sum of all electricity bills |
-| Total gas cost | € | Sum of all gas bills |
-| Total water cost | € | Sum of all water bills |
-| Total utility cost | € | Sum of all utility costs |
+| Sensor                 | Unit | Description                  |
+| ---------------------- | ---- | ---------------------------- |
+| Total electricity cost | €    | Sum of all electricity bills |
+| Total gas cost         | €    | Sum of all gas bills         |
+| Total water cost       | €    | Sum of all water bills       |
+| Total utility cost     | €    | Sum of all utility costs     |
 
 ### Consumption Sensors
 
-| Sensor | Unit | Description |
-|--------|------|-------------|
-| Total electricity consumption | kWh | Sum of all electricity consumption |
-| Total gas consumption | m³ | Sum of all gas consumption |
-| Total water consumption | m³ | Sum of all water consumption |
+| Sensor                        | Unit | Description                        |
+| ----------------------------- | ---- | ---------------------------------- |
+| Total electricity consumption | kWh  | Sum of all electricity consumption |
+| Total gas consumption         | m³   | Sum of all gas consumption         |
+| Total water consumption       | m³   | Sum of all water consumption       |
 
 ### Average Monthly Sensors
 
-| Sensor | Unit | Description |
-|--------|------|-------------|
-| Electricity average monthly cost | € | Total cost / total months |
-| Gas average monthly cost | € | Total cost / total months |
-| Water average monthly cost | € | Total cost / total months |
-| Electricity average monthly consumption | kWh | Total consumption / total months |
-| Gas average monthly consumption | m³ | Total consumption / total months |
-| Water average monthly consumption | m³ | Total consumption / total months |
+| Sensor                                  | Unit | Description                      |
+| --------------------------------------- | ---- | -------------------------------- |
+| Electricity average monthly cost        | €    | Total cost / total months        |
+| Gas average monthly cost                | €    | Total cost / total months        |
+| Water average monthly cost              | €    | Total cost / total months        |
+| Electricity average monthly consumption | kWh  | Total consumption / total months |
+| Gas average monthly consumption         | m³   | Total consumption / total months |
+| Water average monthly consumption       | m³   | Total consumption / total months |
 
 ### Cost per Unit Sensors
 
-| Sensor | Unit | Description |
-|--------|------|-------------|
+| Sensor                    | Unit  | Description                    |
+| ------------------------- | ----- | ------------------------------ |
 | Electricity cost per unit | €/kWh | Total cost / total consumption |
-| Gas cost per unit | €/m³ | Total cost / total consumption |
-| Water cost per unit | €/m³ | Total cost / total consumption |
+| Gas cost per unit         | €/m³  | Total cost / total consumption |
+| Water cost per unit       | €/m³  | Total cost / total consumption |
 
 ## Dashboard Example
 

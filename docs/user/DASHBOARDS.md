@@ -8,11 +8,11 @@ This guide explains how to build a **100% standalone dashboard** using Home Assi
 
 ## 1. Native vs. Custom Components
 
-| Approach | Dependencies | Highlights |
-| :--- | :--- | :--- |
+| Approach                         | Dependencies           | Highlights                                                                                                                        |
+| :------------------------------- | :--------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
 | **Standalone (Native Lovelace)** | 🟢 **None (Built-in)** | Uses native `sections`, `tile`, `gauge`, `entities`, and `markdown` cards. Clean modern look without installing any HACS plugins. |
-| **Enhanced (`apexcharts-card`)** | 🟠 **HACS Frontend** | Adds interactive multi-series monthly bar charts (e.g. comparing electricity, gas, and water costs side-by-side). |
-| **Mushroom Cards** | ⚪ **Not needed** | Home Assistant native `tile` cards provide the same modern, rounded design natively. |
+| **Enhanced (`apexcharts-card`)** | 🟠 **HACS Frontend**   | Adds interactive multi-series monthly bar charts (e.g. comparing electricity, gas, and water costs side-by-side).                 |
+| **Mushroom Cards**               | ⚪ **Not needed**      | Home Assistant native `tile` cards provide the same modern, rounded design natively.                                              |
 
 ---
 

@@ -107,7 +107,6 @@ Each decision is documented with:
 - **Calculation Change:** Averages now use the formula `(total / days) * 30.44`.
 - **UX Change:** Users must now provide specific dates instead of a number of months.
 
-
 ---
 
 ### SensorDescription + Value Function Pattern
