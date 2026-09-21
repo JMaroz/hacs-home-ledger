@@ -93,4 +93,5 @@ name: Electricity Cost
 ## Next Steps
 
 - [Configuration reference](CONFIGURATION.md) — service actions, entity details
-- [Automation examples](EXAMPLES.md) — alerts, reminders, and more
+- [Dashboard guide](DASHBOARDS.md) — standalone Lovelace dashboards, monthly tables, and charts
+- [Automation examples](EXAMPLES.md) — alerts, reminders, and blueprints

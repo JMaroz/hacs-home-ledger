@@ -1,0 +1,57 @@
+blueprint:
+  name: Home Ledger - Monthly Bill Reminder
+  description: >
+    Send a monthly notification to remind you to log your utility bills into Home Ledger.
+  domain: automation
+  input:
+    reminder_day:
+      name: Day of the Month
+      description: Day of the month to send the reminder (1 to 28).
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 28
+          mode: box
+          unit_of_measurement: day
+    reminder_time:
+      name: Reminder Time
+      description: Time of day to trigger the reminder notification.
+      default: "18:00:00"
+      selector:
+        time: {}
+    notify_device:
+      name: Notification Device
+      description: Device to receive the notification.
+      selector:
+        device:
+          integration: mobile_app
+    custom_title:
+      name: Notification Title
+      description: Title of the notification.
+      default: "Home Ledger"
+      selector:
+        text: {}
+    custom_message:
+      name: Notification Message
+      description: Message body for the reminder.
+      default: "Don't forget to enter your utility bills in Home Ledger for the previous billing period."
+      selector:
+        text: {}
+
+mode: single
+
+trigger:
+  - platform: time
+    at: !input reminder_time
+
+condition:
+  - condition: template
+    value_template: "{{ now().day == (reminder_day | int) }}"
+
+action:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: !input custom_title
+    message: !input custom_message

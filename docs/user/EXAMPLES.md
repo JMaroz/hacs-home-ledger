@@ -57,9 +57,15 @@ action:
       message: "Gas consumption is {{ states('sensor.total_gas_consumption') }} m³."
 ```
 
+### Blueprints
+
+Home Ledger provides ready-to-use automation blueprints in `blueprints/automation/home_ledger/`:
+- **[Monthly Bill Reminder](../../blueprints/automation/home_ledger/monthly_bill_reminder.yaml)**: Configurable recurring reminder.
+- **[High Cost Alert](../../blueprints/automation/home_ledger/high_cost_alert.yaml)**: Threshold-based alert.
+
 ### Auto-Add Recurring Bill via Script
 
-Create a script to quickly add a monthly bill from an automation or voice assistant.
+Create a script to quickly add a bill from an automation or voice assistant.
 
 ```yaml
 alias: "Home Ledger: Add electricity bill"
@@ -67,7 +73,8 @@ sequence:
   - service: home_ledger.add_bill
     data:
       utility_type: electricity
-      months: 1
+      start_date: "{{ start_date }}"
+      end_date: "{{ end_date }}"
       total_cost: "{{ cost }}"
       consumption: "{{ consumption }}"
 ```
@@ -77,11 +84,15 @@ Call it:
 ```yaml
 service: script.home_ledger_add_electricity_bill
 data:
+  start_date: "2026-01-01"
+  end_date: "2026-01-31"
   cost: 85.50
   consumption: 210.0
 ```
 
 ## Dashboard Cards
+
+For a complete standalone dashboard guide and copy-paste templates, see [DASHBOARDS.md](DASHBOARDS.md).
 
 ### Cost Trend Graph
 

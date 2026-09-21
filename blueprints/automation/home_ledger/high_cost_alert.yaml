@@ -1,0 +1,40 @@
+blueprint:
+  name: Home Ledger - High Utility Cost Alert
+  description: >
+    Trigger a notification or custom action when a Home Ledger utility cost sensor exceeds a defined threshold.
+  domain: automation
+  input:
+    cost_sensor:
+      name: Cost Sensor
+      description: The Home Ledger cost sensor to monitor (e.g., sensor.total_electricity_cost, sensor.electricity_average_monthly_cost, sensor.total_utility_cost).
+      selector:
+        entity:
+          domain: sensor
+          device_class: monetary
+    cost_threshold:
+      name: Cost Threshold (€)
+      description: Trigger when the sensor value rises above this amount.
+      default: 150
+      selector:
+        number:
+          min: 10
+          max: 5000
+          step: 5
+          unit_of_measurement: EUR
+          mode: box
+    notify_action:
+      name: Action
+      description: Action to execute when the threshold is exceeded (e.g. notify service).
+      selector:
+        action: {}
+
+mode: single
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input cost_sensor
+    above: !input cost_threshold
+
+action:
+  - choose: []
+    default: !input notify_action
