@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from custom_components.home_ledger.const import (
     CONF_SENSOR_GRID_EXPORT,
+    CONF_SENSOR_GSE_EXPORT_TARIFF,
     CONF_SENSOR_HOUSE_CONSUMPTION,
     CONF_SENSOR_PV_PRODUCTION,
 )
@@ -36,16 +37,25 @@ class HomeLedgerDataUpdateCoordinator(DataUpdateCoordinator[HomeLedgerAggregates
             grid_exp_entity = options.get(CONF_SENSOR_GRID_EXPORT)
             grid_exp = self.hass.states.get(grid_exp_entity) if grid_exp_entity else None
 
+            export_tariff_entity = options.get(CONF_SENSOR_GSE_EXPORT_TARIFF)
+            export_tariff_state = self.hass.states.get(export_tariff_entity) if export_tariff_entity else None
+
             try:
                 production = float(pv_prod.state) if pv_prod else 0.0
                 consumption = float(house_cons.state) if house_cons else 0.0
                 export = float(grid_exp.state) if grid_exp else None
+                export_tariff_override = (
+                    float(export_tariff_state.state)
+                    if export_tariff_state and export_tariff_state.state not in ("unknown", "unavailable")
+                    else None
+                )
 
                 self.config_entry.runtime_data.pv_roi = self.config_entry.runtime_data.calculate_pv_roi(
                     options=dict(options),
                     pv_production=production,
                     house_consumption=consumption,
                     grid_export=export,
+                    export_tariff_override=export_tariff_override,
                 )
             except ValueError, TypeError:
                 self.config_entry.runtime_data.pv_roi = None

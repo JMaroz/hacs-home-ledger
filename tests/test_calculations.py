@@ -8,6 +8,7 @@ from custom_components.home_ledger.calculations import (
     calculate_average_monthly_consumption,
     calculate_average_monthly_cost,
     calculate_cost_per_unit,
+    calculate_pv_savings,
     calculate_total_consumption,
     calculate_total_cost,
     calculate_total_days,
@@ -173,3 +174,42 @@ class TestCalculateCostPerUnit:
         ]
         # Total cost = 300, total consumption = 600, cost per unit = 0.5
         assert calculate_cost_per_unit(bills, "electricity") == 0.5
+
+
+class TestCalculatePVSavings:
+    """Tests for calculate_pv_savings with GSE compensation."""
+
+    def test_pv_savings_without_export(self) -> None:
+        assert calculate_pv_savings(production=100.0, cost_per_unit=0.25) == 25.0
+
+    def test_pv_savings_with_export_none_mode(self) -> None:
+        # Production 100, export 40 -> self-consumed 60 @ 0.25 = 15.0 (export earning 0)
+        savings = calculate_pv_savings(
+            production=100.0,
+            cost_per_unit=0.25,
+            grid_export=40.0,
+            gse_mode="none",
+        )
+        assert savings == 15.0
+
+    def test_pv_savings_with_ssp_mode(self) -> None:
+        # Self-consumed 60 @ 0.25 = 15.0, exported 40 @ 0.10 = 4.0 -> total 19.0
+        savings = calculate_pv_savings(
+            production=100.0,
+            cost_per_unit=0.25,
+            grid_export=40.0,
+            export_tariff=0.10,
+            gse_mode="ssp",
+        )
+        assert savings == 19.0
+
+    def test_pv_savings_with_rid_mode(self) -> None:
+        # Self-consumed 60 @ 0.25 = 15.0, exported 40 @ 0.12 = 4.8 -> total 19.8
+        savings = calculate_pv_savings(
+            production=100.0,
+            cost_per_unit=0.25,
+            grid_export=40.0,
+            export_tariff=0.12,
+            gse_mode="rid",
+        )
+        assert savings == 19.8

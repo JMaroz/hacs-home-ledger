@@ -52,7 +52,10 @@
           "sensor_pv_production": "PV production sensor",
           "sensor_house_consumption": "House consumption sensor",
           "sensor_battery_energy": "Battery energy sensor (optional)",
-          "sensor_grid_export": "Grid export sensor (optional)"
+          "sensor_grid_export": "Grid export sensor (optional)",
+          "gse_mode": "GSE payment mode",
+          "gse_export_tariff": "Export tariff (EUR/kWh)",
+          "sensor_gse_export_tariff": "Export tariff sensor (optional)"
         },
         "data_description": {
           "pv_investment": "Total cost paid for the photovoltaic installation.",
@@ -61,7 +64,10 @@
           "sensor_pv_production": "Sensor that reports cumulative photovoltaic production.",
           "sensor_house_consumption": "Sensor that reports cumulative household consumption.",
           "sensor_battery_energy": "Optional sensor that reports energy stored in the battery.",
-          "sensor_grid_export": "Optional sensor that reports energy exported to the grid."
+          "sensor_grid_export": "Optional sensor that reports energy exported to the grid.",
+          "gse_mode": "Select GSE payment mechanism (Scambio sul Posto, Ritiro Dedicato, or none).",
+          "gse_export_tariff": "Fixed compensation rate paid for exported energy per kWh.",
+          "sensor_gse_export_tariff": "Optional sensor reporting dynamic energy export price."
         }
       }
     },

@@ -73,7 +73,7 @@ TEST_PATHS="tests"
 if [[ -d script/tests ]]; then
     TEST_PATHS+=" script/tests"
 fi
-pytest --override-ini "testpaths=$TEST_PATHS" "${COVERAGE_ARGS[@]}" "${PYTEST_ARGS[@]}"
+pytest --override-ini "testpaths=$TEST_PATHS" ${COVERAGE_ARGS[@]+"${COVERAGE_ARGS[@]}"} ${PYTEST_ARGS[@]+"${PYTEST_ARGS[@]}"}
 
 run_hook "test" "post"
 

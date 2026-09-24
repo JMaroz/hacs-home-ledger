@@ -145,6 +145,43 @@ async def test_options_flow_pv_roi_persists_options(
         "pv_installation_date": "2024-01-01",
         "sensor_pv_production": "sensor.pv_production",
         "sensor_house_consumption": "sensor.house_consumption",
+        "gse_mode": "none",
+        "gse_export_tariff": 0.10,
+    }
+    result = await hass.config_entries.options.async_configure(result["flow_id"], user_input)
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"] == user_input
+
+
+async def test_options_flow_pv_roi_with_gse_options(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+) -> None:
+    """Test setting up PV ROI with GSE options (SSP / RID)."""
+    config_entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "pv_roi"},
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "pv_roi"
+
+    user_input = {
+        "pv_investment": 10000.0,
+        "pv_incentives": 5000.0,
+        "pv_incentives_type": "distributed",
+        "pv_incentives_years": 10,
+        "pv_installation_date": "2024-01-01",
+        "sensor_pv_production": "sensor.pv_production",
+        "sensor_house_consumption": "sensor.house_consumption",
+        "sensor_grid_export": "sensor.grid_export",
+        "gse_mode": "ssp",
+        "gse_export_tariff": 0.12,
+        "sensor_gse_export_tariff": "sensor.pun_price",
     }
     result = await hass.config_entries.options.async_configure(result["flow_id"], user_input)
     assert result["type"] == FlowResultType.CREATE_ENTRY

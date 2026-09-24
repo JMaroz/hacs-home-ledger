@@ -20,3 +20,12 @@ CONF_SENSOR_GRID_EXPORT = "sensor_grid_export"
 # Incentive types
 INCENTIVES_TYPE_LUMP_SUM = "lump_sum"
 INCENTIVES_TYPE_DISTRIBUTED = "distributed"
+
+# GSE Constants
+CONF_GSE_MODE = "gse_mode"
+CONF_GSE_EXPORT_TARIFF = "gse_export_tariff"
+CONF_SENSOR_GSE_EXPORT_TARIFF = "sensor_gse_export_tariff"
+
+GSE_MODE_NONE = "none"
+GSE_MODE_SSP = "ssp"
+GSE_MODE_RID = "rid"

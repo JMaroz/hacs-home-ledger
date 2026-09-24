@@ -18,11 +18,14 @@ from custom_components.home_ledger.calculations import (
     calculate_total_days,
 )
 from custom_components.home_ledger.const import (
+    CONF_GSE_EXPORT_TARIFF,
+    CONF_GSE_MODE,
     CONF_PV_INCENTIVES,
     CONF_PV_INCENTIVES_TYPE,
     CONF_PV_INCENTIVES_YEARS,
     CONF_PV_INSTALLATION_DATE,
     CONF_PV_INVESTMENT,
+    GSE_MODE_NONE,
     INCENTIVES_TYPE_DISTRIBUTED,
     INCENTIVES_TYPE_LUMP_SUM,
 )
@@ -152,6 +155,7 @@ class HomeLedgerData:
         pv_production: float,
         house_consumption: float,
         grid_export: float | None = None,
+        export_tariff_override: float | None = None,
     ) -> PVROIData | None:
         """Calculate PV ROI metrics."""
 
@@ -162,6 +166,13 @@ class HomeLedgerData:
         incentives = options.get(CONF_PV_INCENTIVES, 0.0)
         incentives_type = options.get(CONF_PV_INCENTIVES_TYPE, INCENTIVES_TYPE_LUMP_SUM)
         incentives_years = options.get(CONF_PV_INCENTIVES_YEARS, 10)
+
+        gse_mode = options.get(CONF_GSE_MODE, GSE_MODE_NONE)
+        export_tariff = (
+            export_tariff_override
+            if export_tariff_override is not None
+            else float(options.get(CONF_GSE_EXPORT_TARIFF, 0.0))
+        )
 
         install_date = options.get(CONF_PV_INSTALLATION_DATE)
         if isinstance(install_date, str):
@@ -181,6 +192,8 @@ class HomeLedgerData:
             production=pv_production,
             cost_per_unit=cost_per_unit,
             grid_export=grid_export,
+            export_tariff=export_tariff,
+            gse_mode=gse_mode,
         )
 
         # Calculate annual savings for ROI and Payback
@@ -203,10 +216,13 @@ class HomeLedgerData:
             )
 
         annual_production = (pv_production / days_since_install) * 365.25
+        annual_export = (grid_export / days_since_install) * 365.25 if grid_export is not None else None
         annual_pv_savings = calculate_pv_savings(
             production=annual_production,
             cost_per_unit=cost_per_unit,
-            grid_export=None,  # Simplify for annual projection
+            grid_export=annual_export,
+            export_tariff=export_tariff,
+            gse_mode=gse_mode,
         )
 
         # Handle incentives based on type

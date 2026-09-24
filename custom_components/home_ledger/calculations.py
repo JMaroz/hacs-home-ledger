@@ -147,11 +147,15 @@ def calculate_pv_savings(
     cost_per_unit: float,
     grid_export: float | None = None,
     export_tariff: float = 0.0,
+    gse_mode: str = "none",
 ) -> float:
-    """Calculate the monetary savings from PV production."""
+    """Calculate the monetary savings and GSE compensation from PV production."""
     if grid_export is not None:
         self_consumed = max(0.0, production - grid_export)
-        return (self_consumed * cost_per_unit) + (grid_export * export_tariff)
+        self_consumption_savings = self_consumed * cost_per_unit
+        effective_tariff = export_tariff if gse_mode in ("ssp", "rid") or export_tariff > 0 else 0.0
+        export_compensation = grid_export * effective_tariff
+        return self_consumption_savings + export_compensation
 
     return production * cost_per_unit
 

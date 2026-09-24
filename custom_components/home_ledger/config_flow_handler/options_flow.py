@@ -6,6 +6,8 @@ from uuid import uuid4
 import voluptuous as vol
 
 from custom_components.home_ledger.const import (
+    CONF_GSE_EXPORT_TARIFF,
+    CONF_GSE_MODE,
     CONF_PV_INCENTIVES,
     CONF_PV_INCENTIVES_TYPE,
     CONF_PV_INCENTIVES_YEARS,
@@ -13,8 +15,12 @@ from custom_components.home_ledger.const import (
     CONF_PV_INVESTMENT,
     CONF_SENSOR_BATTERY_ENERGY,
     CONF_SENSOR_GRID_EXPORT,
+    CONF_SENSOR_GSE_EXPORT_TARIFF,
     CONF_SENSOR_HOUSE_CONSUMPTION,
     CONF_SENSOR_PV_PRODUCTION,
+    GSE_MODE_NONE,
+    GSE_MODE_RID,
+    GSE_MODE_SSP,
     INCENTIVES_TYPE_DISTRIBUTED,
     INCENTIVES_TYPE_LUMP_SUM,
 )
@@ -79,6 +85,22 @@ STEP_PV_ROI_SCHEMA = vol.Schema(
             selector.EntitySelectorConfig(domain="sensor"),
         ),
         vol.Optional(CONF_SENSOR_GRID_EXPORT): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor"),
+        ),
+        vol.Optional(CONF_GSE_MODE, default=GSE_MODE_NONE): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=[
+                    {"label": "Nessuno (Solo Autoconsumo)", "value": GSE_MODE_NONE},
+                    {"label": "Scambio sul Posto (SSP)", "value": GSE_MODE_SSP},
+                    {"label": "Ritiro Dedicato (RID)", "value": GSE_MODE_RID},
+                ],
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            ),
+        ),
+        vol.Optional(CONF_GSE_EXPORT_TARIFF, default=0.10): selector.NumberSelector(
+            selector.NumberSelectorConfig(min=0, step=0.001, mode=selector.NumberSelectorMode.BOX),
+        ),
+        vol.Optional(CONF_SENSOR_GSE_EXPORT_TARIFF): selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor"),
         ),
     },
